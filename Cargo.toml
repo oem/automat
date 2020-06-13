@@ -6,4 +6,8 @@ edition = "2018"
 description = "Data wrangling from the command line"
 license = "Unlicense/MIT"
 
+[[bin]]
+name = "atm"
+path = "src/main.rs"
+
 [dependencies]
