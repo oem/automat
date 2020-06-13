@@ -1,0 +1,9 @@
+[package]
+name = "automat"
+version = "0.0.2"
+authors = ["Ömür Özkir <oemuer.oezkir@gmail.com>"]
+edition = "2018"
+description = "Data wrangling from the command line"
+license = "Unlicense/MIT"
+
+[dependencies]
