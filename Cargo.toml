@@ -11,3 +11,4 @@ name = "atm"
 path = "src/main.rs"
 
 [dependencies]
+structopt = "0.3.13"
