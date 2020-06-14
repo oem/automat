@@ -1,11 +1,14 @@
-use std::io::{self, BufRead};
+use std::{
+    io::{self, BufRead},
+    path,
+};
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
 struct Cli {
     cmd: String,
     #[structopt(parse(from_os_str))]
-    file: std::path::PathBuf,
+    file: path::PathBuf,
 }
 
 fn main() -> io::Result<()> {
