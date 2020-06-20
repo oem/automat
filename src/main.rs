@@ -8,15 +8,18 @@ use structopt::StructOpt;
 )]
 struct Opt {
     /// select subcommand
-    cmd: String,
-
-    /// filter conditions
-    #[structopt(required_if("cmd", "filter"))]
-    conditions: Option<String>,
+    #[structopt(subcommand)]
+    cmd: Command,
 
     /// tabular data input, stdin if not present
     #[structopt(parse(from_os_str))]
     input: Option<PathBuf>,
+}
+
+#[derive(Debug, StructOpt)]
+enum Command {
+    /// filter columns by condition provided
+    Filter { conditions: String },
 }
 
 fn main() {
