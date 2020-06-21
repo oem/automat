@@ -19,7 +19,7 @@ struct Opt {
 #[derive(Debug, StructOpt)]
 enum Command {
     /// filter columns by condition provided
-    Filter { conditions: String },
+    Filter { conditions: Vec<String> },
 }
 
 fn main() {
