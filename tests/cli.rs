@@ -3,6 +3,16 @@ use predicates::prelude::*;
 use std::process::Command;
 
 #[test]
+fn help_includes_filter() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("atm")?;
+    cmd.arg("help");
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("filter"));
+    Ok(())
+}
+
+#[test]
 fn filter_without_conditions() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("atm")?;
     cmd.arg("filter");
