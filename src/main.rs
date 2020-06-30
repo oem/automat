@@ -41,12 +41,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match opt.input {
         Some(input) => {
             let file = File::open(input)?;
-            let mut rdr = csv::Reader::from_reader(file);
-            filter(rdr)
+            filter(csv::Reader::from_reader(file))
         }
         None => filter(csv::Reader::from_reader(std::io::stdin())),
-    };
-    Ok(())
+    }
 }
 
 #[cfg(test)]
