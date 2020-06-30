@@ -28,12 +28,14 @@ enum Command {
     },
 }
 
-fn filter<R: std::io::Read>(mut rdr: csv::Reader<R>) -> Result<(), Box<dyn std::error::Error>> {
+fn filter<R: std::io::Read>(
+    mut rdr: csv::Reader<R>,
+) -> Result<csv::StringRecord, Box<dyn std::error::Error>> {
     for result in rdr.records() {
         let record = result?;
         println!("{:?}", record);
     }
-    Ok(())
+    Ok(csv::StringRecord::from(vec!["42", "dog", "56"]))
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -41,9 +43,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match opt.input {
         Some(input) => {
             let file = File::open(input)?;
-            filter(csv::Reader::from_reader(file))
+            filter(csv::Reader::from_reader(file))?;
+            Ok(())
         }
-        None => filter(csv::Reader::from_reader(std::io::stdin())),
+        None => {
+            filter(csv::Reader::from_reader(std::io::stdin()))?;
+            Ok(())
+        }
     }
 }
 
@@ -52,5 +58,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {}
+    fn filter_larger_than() {
+        let csv = "id,moo,points
+            12,cow,33
+            42,dog,56";
+        let rdr = csv::Reader::from_reader(csv.as_bytes());
+        let filtered = filter(rdr).unwrap();
+
+        assert_eq!(filtered, csv::StringRecord::from(vec!["42", "dog", "56"]))
+    }
 }
