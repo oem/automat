@@ -6,12 +6,12 @@ It is a tool to help with initial exploratory data analysis on the command line.
 
 Specifically, automat provides following functions to help you wrangle with your data:
 
-- [progress] filter
-- [todo] mutate
-- [todo] summarize
-- [todo] arrange
-- [todo] group_by
-- [todo] other, SQL-like operations on your tabular data
+- [ ] filter <del>in progress</del>
+- [ ]  mutate
+- [ ] summarize
+- [ ] arrange
+- [ ] group_by
+- [ ] other, SQL-like operations on your tabular data
 
 ## Why?
 
