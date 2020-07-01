@@ -32,15 +32,17 @@ enum Command {
 fn filter<R: std::io::Read>(
     mut rdr: csv::Reader<R>,
     value: f32,
-) -> Result<csv::StringRecord, Box<dyn std::error::Error>> {
-    println!("{:?}", rdr.headers()?);
+    col_index: usize,
+) -> Result<Vec<csv::StringRecord>, Box<dyn std::error::Error>> {
+    let mut rows: Vec<csv::StringRecord> = vec![];
     for result in rdr.records() {
         let record = result?;
-        let col = f32::from_str(&record[1])?;
-        println!("col: {}", col);
-        println!("{:?}", record);
+        let col = f32::from_str(&record[col_index])?;
+        if col > value {
+            rows.push(record);
+        }
     }
-    Ok(csv::StringRecord::from(vec!["foo", "42"]))
+    Ok(rows)
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -48,11 +50,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match opt.input {
         Some(input) => {
             let file = File::open(input)?;
-            filter(csv::Reader::from_reader(file), 12.0)?;
+            let filtered = filter(csv::Reader::from_reader(file), 12.0, 1)?;
+            println!("{:?}", filtered);
             Ok(())
         }
         None => {
-            filter(csv::Reader::from_reader(std::io::stdin()), 12.0)?;
+            let filtered = filter(csv::Reader::from_reader(std::io::stdin()), 12.0, 1)?;
+            println!("{:?}", filtered);
             Ok(())
         }
     }
@@ -64,12 +68,10 @@ mod tests {
 
     #[test]
     fn filter_larger_than() {
-        let csv = "name,id
-            moo,12
-            foo,42";
+        let csv = "name,id\nmoo,12\nfoo,42";
         let rdr = csv::Reader::from_reader(csv.as_bytes());
-        let filtered = filter(rdr, 12.0).unwrap();
+        let filtered = filter(rdr, 12.0, 1).unwrap();
 
-        assert_eq!(filtered, csv::StringRecord::from(vec!["foo", "42"]))
+        assert_eq!(filtered, vec![csv::StringRecord::from(vec!["foo", "42"])])
     }
 }
