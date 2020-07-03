@@ -55,11 +55,12 @@ enum Check {
     SmallerThanOrEqual(f32),
 }
 
-fn get_condition_parts<R: io::Read + std::fmt::Debug>(
-    rdr: csv::Reader<R>,
-    condition: String,
-) -> (usize, Check) {
-    (1, Check::GreaterThan(12.))
+fn get_condition_parts(condition: String) -> Option<Check> {
+    Some(Check::GreaterThan(12.))
+}
+
+fn get_col_index<R: io::Read + std::fmt::Debug>(rdr: csv::Reader<R>) -> Option<usize> {
+    todo!()
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -101,11 +102,14 @@ mod tests {
     }
 
     #[test]
-    fn get_usize_and_enum_from_get_condition_parts() {
-        let csv = "name,id\nmoo,12\nfoo,42";
-        let rdr = csv::Reader::from_reader(csv.as_bytes());
-        let parts = get_condition_parts(rdr, "id>12".to_string());
-        assert_eq!(parts.0, 1);
-        assert_eq!(parts.1, Check::GreaterThan(12.0));
+    fn get_condition_parts_a() {
+        let check = get_condition_parts("id>12".to_string());
+        assert_eq!(check, Some(Check::GreaterThan(12.0)));
+    }
+
+    #[test]
+    fn get_condition_parts_b() {
+        let check = get_condition_parts("id<=42".to_string());
+        assert_eq!(check, Some(Check::SmallerThanOrEqual(42.)));
     }
 }
