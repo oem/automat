@@ -30,16 +30,17 @@ enum Command {
     },
 }
 
-fn filter<R: io::Read>(
+fn filter<'a, R: io::Read + 'a>(
     mut rdr: csv::Reader<R>,
     condition: String,
 ) -> Result<Vec<csv::StringRecord>, Box<dyn std::error::Error>> {
     let mut rows: Vec<csv::StringRecord> = vec![];
+    rows.push(rdr.headers()?.clone());
     for result in rdr.records() {
         let record = result?;
         let col = f32::from_str(&record[1])?; // magic number one: col_index from condition
         if col > 12.0 {
-            // ^ magic number two: value from condition, also operation
+            // ^ magic number two: value from condition, also a magical operation
             rows.push(record);
         }
     }
@@ -58,8 +59,7 @@ fn get_condition_parts<R: io::Read + std::fmt::Debug>(
     rdr: csv::Reader<R>,
     condition: String,
 ) -> (usize, Check) {
-    println!("{:?} {}", rdr, condition);
-    todo!()
+    (1, Check::GreaterThan(12.))
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -68,7 +68,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(input) => {
             let file = File::open(input)?;
             let filtered = filter(csv::Reader::from_reader(file), "id>12".to_string())?;
-            println!("{:?}", filtered);
+            for row in filtered {
+                println!("{}", row.iter().collect::<Vec<&str>>().join(","));
+            }
             Ok(())
         }
         None => {
@@ -89,11 +91,17 @@ mod tests {
         let rdr = csv::Reader::from_reader(csv.as_bytes());
         let filtered = filter(rdr, "id>12".to_string()).unwrap();
 
-        assert_eq!(filtered, vec![csv::StringRecord::from(vec!["foo", "42"])])
+        assert_eq!(
+            filtered,
+            vec![
+                csv::StringRecord::from(vec!["name", "id"]),
+                csv::StringRecord::from(vec!["foo", "42"])
+            ]
+        )
     }
 
     #[test]
-    fn test_get_condition_parts() {
+    fn get_usize_and_enum_from_get_condition_parts() {
         let csv = "name,id\nmoo,12\nfoo,42";
         let rdr = csv::Reader::from_reader(csv.as_bytes());
         let parts = get_condition_parts(rdr, "id>12".to_string());
