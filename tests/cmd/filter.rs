@@ -25,6 +25,6 @@ fn filter_column_larger_than_b() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(file.path()).arg("filter").arg("id>2");
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("name,id\noem,42"));
+        .stdout(predicate::str::contains("name,id\noem,9"));
     Ok(())
 }

@@ -2,6 +2,7 @@ extern crate csv;
 
 use regex::Regex;
 use std::error::Error;
+use std::fmt;
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
@@ -60,6 +61,31 @@ enum Check {
     SmallerThanOrEqual(f32),
 }
 
+#[derive(Debug)]
+struct ParseOperatorError {
+    details: String,
+}
+
+impl ParseOperatorError {
+    fn new(msg: &str) -> ParseOperatorError {
+        ParseOperatorError {
+            details: msg.to_string(),
+        }
+    }
+}
+
+impl fmt::Display for ParseOperatorError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.details)
+    }
+}
+
+impl Error for ParseOperatorError {
+    fn description(&self) -> &str {
+        &self.details
+    }
+}
+
 fn get_condition_parts(condition: String) -> Result<Option<Check>, Box<dyn Error>> {
     let re = Regex::new(r"(>=|<|>|<=|==)(\d+)$")?;
     let mut operator = "".to_string();
@@ -73,7 +99,9 @@ fn get_condition_parts(condition: String) -> Result<Option<Check>, Box<dyn Error
         ">" => Ok(Some(Check::GreaterThan(value))),
         "<=" => Ok(Some(Check::SmallerThanOrEqual(value))),
         "<" => Ok(Some(Check::SmallerThan(value))),
-        _ => Ok(None),
+        a @ _ => Err(Box::new(ParseOperatorError::new(
+            format!("Unknown operator {}", a).as_str(),
+        ))),
     }
 }
 
