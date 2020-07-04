@@ -28,7 +28,7 @@ enum Command {
     /// filter columns by condition provided
     Filter {
         #[structopt(required = true)]
-        conditions: Vec<String>,
+        condition: String,
     },
 }
 
@@ -38,7 +38,7 @@ fn filter<'a, R: io::Read + 'a>(
 ) -> Result<Vec<csv::StringRecord>, Box<dyn Error>> {
     let mut rows: Vec<csv::StringRecord> = vec![];
     if let Ok(Some(c)) = get_condition_parts(condition) {
-        println!("condition: {:?}", c);
+        println!("identified condition: {:?}", c);
     }
     rows.push(rdr.headers()?.clone());
     for result in rdr.records() {

@@ -18,7 +18,7 @@ fn filter_without_conditions() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("filter");
     cmd.assert()
         .failure()
-        .stderr(predicate::str::contains("conditions"));
+        .stderr(predicate::str::contains("condition"));
     Ok(())
 }
 
