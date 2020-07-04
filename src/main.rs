@@ -148,7 +148,7 @@ mod tests {
 
     #[test]
     fn test_get_condition_parts_greater_than() -> Result<(), Box<dyn Error>> {
-        let check = get_condition_parts(&"id>12".to_owned())?;
+        let check = get_condition_parts(&"id>12")?;
         assert_eq!(check, Check::GreaterThan(12.0));
         Ok(())
     }
