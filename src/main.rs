@@ -148,16 +148,22 @@ mod tests {
     }
 
     #[test]
-    fn get_condition_parts_a() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_get_condition_parts_greater_than() -> Result<(), Box<dyn Error>> {
         let check = get_condition_parts("id>12".to_string())?;
         assert_eq!(check, Some(Check::GreaterThan(12.0)));
         Ok(())
     }
 
     #[test]
-    fn get_condition_parts_b() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_get_condition_parts_smaller_than_or_equal() -> Result<(), Box<dyn Error>> {
         let check = get_condition_parts("id<=42".to_string())?;
         assert_eq!(check, Some(Check::SmallerThanOrEqual(42.)));
         Ok(())
+    }
+
+    #[test]
+    fn test_get_condition_parts_unknown_operator() {
+        let check = get_condition_parts("id!42".to_string());
+        assert_eq!(check.is_err(), true);
     }
 }
