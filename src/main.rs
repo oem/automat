@@ -1,5 +1,7 @@
 extern crate csv;
 
+use regex::Regex;
+use std::error::Error;
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
@@ -33,8 +35,11 @@ enum Command {
 fn filter<'a, R: io::Read + 'a>(
     mut rdr: csv::Reader<R>,
     condition: String,
-) -> Result<Vec<csv::StringRecord>, Box<dyn std::error::Error>> {
+) -> Result<Vec<csv::StringRecord>, Box<dyn Error>> {
     let mut rows: Vec<csv::StringRecord> = vec![];
+    if let Ok(Some(c)) = get_condition_parts(condition) {
+        println!("condition: {:?}", c);
+    }
     rows.push(rdr.headers()?.clone());
     for result in rdr.records() {
         let record = result?;
@@ -55,8 +60,21 @@ enum Check {
     SmallerThanOrEqual(f32),
 }
 
-fn get_condition_parts(condition: String) -> Option<Check> {
-    Some(Check::GreaterThan(12.))
+fn get_condition_parts(condition: String) -> Result<Option<Check>, Box<dyn Error>> {
+    let re = Regex::new(r"(>=|<|>|<=|==)(\d+)$")?;
+    let mut operator = "".to_string();
+    let mut value = 0.;
+    for cap in re.captures_iter(&condition) {
+        operator = cap[1].to_string();
+        value = f32::from_str(&cap[2])?; // magic number one: col_index from condition
+    }
+    match operator.as_str() {
+        ">=" => Ok(Some(Check::GreaterThanOrEqual(value))),
+        ">" => Ok(Some(Check::GreaterThan(value))),
+        "<=" => Ok(Some(Check::SmallerThanOrEqual(value))),
+        "<" => Ok(Some(Check::SmallerThan(value))),
+        _ => Ok(None),
+    }
 }
 
 fn get_col_index<R: io::Read + std::fmt::Debug>(rdr: csv::Reader<R>) -> Option<usize> {
@@ -102,14 +120,16 @@ mod tests {
     }
 
     #[test]
-    fn get_condition_parts_a() {
-        let check = get_condition_parts("id>12".to_string());
+    fn get_condition_parts_a() -> Result<(), Box<dyn std::error::Error>> {
+        let check = get_condition_parts("id>12".to_string())?;
         assert_eq!(check, Some(Check::GreaterThan(12.0)));
+        Ok(())
     }
 
     #[test]
-    fn get_condition_parts_b() {
-        let check = get_condition_parts("id<=42".to_string());
+    fn get_condition_parts_b() -> Result<(), Box<dyn std::error::Error>> {
+        let check = get_condition_parts("id<=42".to_string())?;
         assert_eq!(check, Some(Check::SmallerThanOrEqual(42.)));
+        Ok(())
     }
 }

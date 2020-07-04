@@ -54,6 +54,7 @@ dependencies = [
  "assert_cmd",
  "csv",
  "predicates",
+ "regex",
  "structopt",
  "tempfile",
 ]
