@@ -35,12 +35,11 @@ enum Command {
 
 fn filter<'a, R: io::Read + 'a>(
     mut rdr: csv::Reader<R>,
-    condition: String,
+    condition: &str,
 ) -> Result<Vec<csv::StringRecord>, Box<dyn Error>> {
     let mut rows: Vec<csv::StringRecord> = vec![];
-    if let Ok(Some(c)) = get_condition_parts(condition) {
-        println!("identified condition: {:?}", c);
-    }
+    let check = get_condition_parts(condition)?;
+    println!("identified condition: {:?}", check);
     rows.push(rdr.headers()?.clone());
     for result in rdr.records() {
         let record = result?;
@@ -86,19 +85,19 @@ impl Error for ParseOperatorError {
     }
 }
 
-fn get_condition_parts(condition: String) -> Result<Option<Check>, Box<dyn Error>> {
+fn get_condition_parts(condition: &str) -> Result<Check, Box<dyn Error>> {
     let re = Regex::new(r"(>=|<|>|<=|==)(\d+)$")?;
     let mut operator = "".to_string();
     let mut value = 0.;
-    for cap in re.captures_iter(&condition) {
+    for cap in re.captures_iter(condition) {
         operator = cap[1].to_string();
-        value = f32::from_str(&cap[2])?; // magic number one: col_index from condition
+        value = f32::from_str(&cap[2])?;
     }
     match operator.as_str() {
-        ">=" => Ok(Some(Check::GreaterThanOrEqual(value))),
-        ">" => Ok(Some(Check::GreaterThan(value))),
-        "<=" => Ok(Some(Check::SmallerThanOrEqual(value))),
-        "<" => Ok(Some(Check::SmallerThan(value))),
+        ">=" => Ok(Check::GreaterThanOrEqual(value)),
+        ">" => Ok(Check::GreaterThan(value)),
+        "<=" => Ok(Check::SmallerThanOrEqual(value)),
+        "<" => Ok(Check::SmallerThan(value)),
         a @ _ => Err(Box::new(ParseOperatorError::new(
             format!("Unknown operator {}", a).as_str(),
         ))),
@@ -109,19 +108,19 @@ fn get_col_index<R: io::Read + std::fmt::Debug>(rdr: csv::Reader<R>) -> Option<u
     todo!()
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     let opt = Opt::from_args();
     match opt.input {
         Some(input) => {
             let file = File::open(input)?;
-            let filtered = filter(csv::Reader::from_reader(file), "id>12".to_string())?;
+            let filtered = filter(csv::Reader::from_reader(file), "id>12")?;
             for row in filtered {
                 println!("{}", row.iter().collect::<Vec<&str>>().join(","));
             }
             Ok(())
         }
         None => {
-            let filtered = filter(csv::Reader::from_reader(io::stdin()), "id>12".to_string())?;
+            let filtered = filter(csv::Reader::from_reader(io::stdin()), "id>12")?;
             println!("{:?}", filtered);
             Ok(())
         }
@@ -136,7 +135,7 @@ mod tests {
     fn filter_larger_than() {
         let csv = "name,id\nmoo,12\nfoo,42";
         let rdr = csv::Reader::from_reader(csv.as_bytes());
-        let filtered = filter(rdr, "id>12".to_string()).unwrap();
+        let filtered = filter(rdr, "id>12").unwrap();
 
         assert_eq!(
             filtered,
@@ -149,21 +148,21 @@ mod tests {
 
     #[test]
     fn test_get_condition_parts_greater_than() -> Result<(), Box<dyn Error>> {
-        let check = get_condition_parts("id>12".to_string())?;
-        assert_eq!(check, Some(Check::GreaterThan(12.0)));
+        let check = get_condition_parts(&"id>12".to_owned())?;
+        assert_eq!(check, Check::GreaterThan(12.0));
         Ok(())
     }
 
     #[test]
     fn test_get_condition_parts_smaller_than_or_equal() -> Result<(), Box<dyn Error>> {
-        let check = get_condition_parts("id<=42".to_string())?;
-        assert_eq!(check, Some(Check::SmallerThanOrEqual(42.)));
+        let check = get_condition_parts("id<=42")?;
+        assert_eq!(check, Check::SmallerThanOrEqual(42.));
         Ok(())
     }
 
     #[test]
     fn test_get_condition_parts_unknown_operator() {
-        let check = get_condition_parts("id!42".to_string());
+        let check = get_condition_parts("id!42");
         assert_eq!(check.is_err(), true);
     }
 }
