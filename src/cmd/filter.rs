@@ -185,5 +185,28 @@ mod tests {
     }
 
     #[test]
-    fn test_get_col_index_a() {}
+    fn test_get_col_index_a() -> Result<(), Box<dyn Error>> {
+        let csv = "name,id\nmoo,12\nfoo,42";
+        let rdr = &mut csv::Reader::from_reader(csv.as_bytes());
+        assert_eq!(get_col_index(rdr, "id>12")?, 1);
+        assert_eq!(get_col_index(rdr, "name>12")?, 0);
+        Ok(())
+    }
+
+    #[test]
+    fn test_get_col_index_no_header_match() {
+        let csv = "name,id\nmoo,12\nfoo,42";
+        let rdr = &mut csv::Reader::from_reader(csv.as_bytes());
+        assert_eq!(get_col_index(rdr, "weird>=42").is_err(), true);
+        assert_eq!(get_col_index(rdr, "something<=42").is_err(), true);
+    }
+
+    #[test]
+    fn test_get_col_index_no_headers() {
+        let csv = "moo,12\nfoo,42";
+        let rdr = &mut csv::ReaderBuilder::new()
+            .has_headers(false)
+            .from_reader(csv.as_bytes());
+        assert_eq!(get_col_index(rdr, "weird>=42").is_err(), true);
+    }
 }
