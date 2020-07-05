@@ -137,7 +137,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             Ok(())
         }
         None => {
-            let filtered = filter(csv::Reader::from_reader(io::stdin()), "id>12")?;
+            let filtered = filter(
+                csv::Reader::from_reader(io::stdin()),
+                filter_condition.as_str(),
+            )?;
             println!("{:?}", filtered);
             Ok(())
         }
