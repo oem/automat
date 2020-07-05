@@ -38,14 +38,13 @@ fn filter<'a, R: io::Read + std::fmt::Debug + 'a>(
     condition: &str,
 ) -> Result<Vec<csv::StringRecord>, Box<dyn Error>> {
     let mut rows: Vec<csv::StringRecord> = vec![];
-    let index = get_col_index(rdr, condition);
+    let index = get_col_index(rdr, condition)?;
     let check = get_condition_parts(condition)?;
     rows.push(rdr.headers()?.clone());
     for result in rdr.records() {
         let record = result?;
-        let col = f32::from_str(&record[1])?; // magic number one: col_index from condition
+        let col = f32::from_str(&record[index])?;
         if check.compare(col) {
-            // ^ magic number two: value from condition, also a magical operation
             rows.push(record);
         }
     }
@@ -120,15 +119,17 @@ fn get_col_index<R: io::Read + std::fmt::Debug>(
     rdr: &mut csv::Reader<R>,
     condition: &str,
 ) -> Result<usize, Box<dyn Error>> {
-    let col_name = "id";
+    let re = Regex::new(r"^(.+?)(>=|<|>|<=|==)")?;
+    let mut col_name = "".to_string();
+    for cap in re.captures_iter(condition) {
+        col_name = cap[1].to_string();
+    }
+
     let index = rdr
         .headers()?
         .iter()
         .position(|r| r == col_name)
-        .ok_or(format!(
-            "Column with name {} not found in the headers",
-            col_name
-        ))?;
+        .ok_or(format!("Column {} not found in the headers", col_name))?;
     Ok(index)
 }
 
