@@ -4,7 +4,7 @@ use std::fmt;
 use std::io;
 use std::str::FromStr;
 
-pub fn filter<'a, R: io::Read + std::fmt::Debug + 'a>(
+pub fn filter<'a, R: io::Read + fmt::Debug + 'a>(
     rdr: &mut csv::Reader<R>,
     condition: &str,
 ) -> Result<Vec<csv::StringRecord>, Box<dyn Error>> {
@@ -86,7 +86,7 @@ fn get_condition_parts(condition: &str) -> Result<Check, Box<dyn Error>> {
     }
 }
 
-fn get_col_index<R: io::Read + std::fmt::Debug>(
+fn get_col_index<R: io::Read + fmt::Debug>(
     rdr: &mut csv::Reader<R>,
     condition: &str,
 ) -> Result<usize, Box<dyn Error>> {
