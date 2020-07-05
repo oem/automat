@@ -33,11 +33,12 @@ enum Command {
     },
 }
 
-fn filter<'a, R: io::Read + 'a>(
-    mut rdr: csv::Reader<R>,
+fn filter<'a, R: io::Read + std::fmt::Debug + 'a>(
+    rdr: &mut csv::Reader<R>,
     condition: &str,
 ) -> Result<Vec<csv::StringRecord>, Box<dyn Error>> {
     let mut rows: Vec<csv::StringRecord> = vec![];
+    let index = get_col_index(rdr, condition);
     let check = get_condition_parts(condition)?;
     rows.push(rdr.headers()?.clone());
     for result in rdr.records() {
@@ -62,10 +63,7 @@ enum Check {
 impl Check {
     fn compare(&self, other: f32) -> bool {
         match &self {
-            Self::GreaterThan(n) => {
-                println!("{} > {} = {}", other, *n, other > *n);
-                other > *n
-            }
+            Self::GreaterThan(n) => other > *n,
             Self::GreaterThanOrEqual(n) => other >= *n,
             Self::SmallerThan(n) => other < *n,
             Self::SmallerThanOrEqual(n) => other <= *n,
@@ -74,25 +72,25 @@ impl Check {
 }
 
 #[derive(Debug)]
-struct ParseOperatorError {
+struct ParseConditionError {
     details: String,
 }
 
-impl ParseOperatorError {
-    fn new(msg: &str) -> ParseOperatorError {
-        ParseOperatorError {
+impl ParseConditionError {
+    fn new(msg: &str) -> Self {
+        Self {
             details: msg.to_string(),
         }
     }
 }
 
-impl fmt::Display for ParseOperatorError {
+impl fmt::Display for ParseConditionError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.details)
     }
 }
 
-impl Error for ParseOperatorError {
+impl Error for ParseConditionError {
     fn description(&self) -> &str {
         &self.details
     }
@@ -112,14 +110,26 @@ fn get_condition_parts(condition: &str) -> Result<Check, Box<dyn Error>> {
         ">" => Ok(Check::GreaterThan(value)),
         "<=" => Ok(Check::SmallerThanOrEqual(value)),
         "<" => Ok(Check::SmallerThan(value)),
-        a @ _ => Err(Box::new(ParseOperatorError::new(
+        a @ _ => Err(Box::new(ParseConditionError::new(
             format!("Unknown operator {}", a).as_str(),
         ))),
     }
 }
 
-fn get_col_index<R: io::Read + std::fmt::Debug>(rdr: csv::Reader<R>) -> Option<usize> {
-    todo!()
+fn get_col_index<R: io::Read + std::fmt::Debug>(
+    rdr: &mut csv::Reader<R>,
+    condition: &str,
+) -> Result<usize, Box<dyn Error>> {
+    let col_name = "id";
+    let index = rdr
+        .headers()?
+        .iter()
+        .position(|r| r == col_name)
+        .ok_or(format!(
+            "Column with name {} not found in the headers",
+            col_name
+        ))?;
+    Ok(index)
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -130,7 +140,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     match opt.input {
         Some(input) => {
             let file = File::open(input)?;
-            let filtered = filter(csv::Reader::from_reader(file), filter_condition.as_str())?;
+            let filtered = filter(
+                &mut csv::Reader::from_reader(file),
+                filter_condition.as_str(),
+            )?;
             for row in filtered {
                 println!("{}", row.iter().collect::<Vec<&str>>().join(","));
             }
@@ -138,7 +151,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         None => {
             let filtered = filter(
-                csv::Reader::from_reader(io::stdin()),
+                &mut csv::Reader::from_reader(io::stdin()),
                 filter_condition.as_str(),
             )?;
             println!("{:?}", filtered);
@@ -152,10 +165,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn filter_larger_than() {
+    fn filter_larger_than() -> Result<(), Box<dyn Error>> {
         let csv = "name,id\nmoo,12\nfoo,42";
-        let rdr = csv::Reader::from_reader(csv.as_bytes());
-        let filtered = filter(rdr, "id>12").unwrap();
+        let rdr = &mut csv::Reader::from_reader(csv.as_bytes());
+        let filtered = filter(rdr, "id>12")?;
 
         assert_eq!(
             filtered,
@@ -163,7 +176,8 @@ mod tests {
                 csv::StringRecord::from(vec!["name", "id"]),
                 csv::StringRecord::from(vec!["foo", "42"])
             ]
-        )
+        );
+        Ok(())
     }
 
     #[test]
@@ -225,4 +239,7 @@ mod tests {
         assert_eq!(Check::SmallerThanOrEqual(42.).compare(12.), true);
         assert_eq!(Check::SmallerThanOrEqual(2.).compare(12.), false);
     }
+
+    #[test]
+    fn test_get_col_index_a() {}
 }
