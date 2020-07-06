@@ -44,16 +44,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match opt.input {
         Some(input) => {
-            let filtered = cmd::filter(
-                &mut csv::Reader::from_path(input)?,
-                filter_condition.as_str(),
-            )?;
+            let filtered = cmd::filter(csv::Reader::from_path(input)?, filter_condition.as_str())?;
             print_table(filtered);
             Ok(())
         }
         None => {
             let filtered = cmd::filter(
-                &mut csv::Reader::from_reader(io::stdin()),
+                csv::Reader::from_reader(io::stdin()),
                 filter_condition.as_str(),
             )?;
             print_table(filtered);

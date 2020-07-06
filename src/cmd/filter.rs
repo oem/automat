@@ -5,30 +5,30 @@ use std::io;
 use std::str::FromStr;
 
 pub fn filter<'a, R: io::Read + fmt::Debug + 'a>(
-    rdr: &mut csv::Reader<R>,
+    mut rdr: csv::Reader<R>,
     condition: &str,
 ) -> Result<Vec<csv::StringRecord>, Box<dyn Error>> {
-    let index = get_col_index(rdr, condition)?;
+    let index = get_col_index(&mut rdr, condition)?;
     let check = get_condition_parts(condition)?;
 
     let match_condition = |result: &Result<csv::StringRecord, csv::Error>| -> bool {
         if let Ok(record) = result {
             if let Ok(col) = f32::from_str(&record[index]) {
                 return check.compare(col);
-            } else {
-                return false;
             }
+            return false;
         }
         false
     };
 
+    let headers = rdr.headers()?.clone();
     let mut rows: Vec<csv::StringRecord> = rdr
         .records()
         .filter(|r| r.is_ok())
         .filter(match_condition)
         .flat_map(|x| x)
         .collect();
-    rows.insert(0, rdr.headers()?.clone());
+    rows.insert(0, headers);
     Ok(rows)
 }
 
@@ -121,7 +121,7 @@ mod tests {
     #[test]
     fn test_filter_larger_than() -> Result<(), Box<dyn Error>> {
         let csv = "name,id\nmoo,12\nfoo,42";
-        let rdr = &mut csv::Reader::from_reader(csv.as_bytes());
+        let rdr = csv::Reader::from_reader(csv.as_bytes());
         let filtered = filter(rdr, "id>12")?;
 
         assert_eq!(
@@ -137,7 +137,7 @@ mod tests {
     #[test]
     fn test_filter_na_values() -> Result<(), Box<dyn Error>> {
         let csv = "name,id\nmoo,12\ngoo,\nfoo,42";
-        let rdr = &mut csv::Reader::from_reader(csv.as_bytes());
+        let rdr = csv::Reader::from_reader(csv.as_bytes());
         let filtered = filter(rdr, "id>12")?;
 
         assert_eq!(
