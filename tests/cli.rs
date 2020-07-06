@@ -39,9 +39,9 @@ fn test_filter_from_stdin() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("atm")?;
     cmd.arg("filter")
         .arg("id<12")
-        .write_stdin("name,id\noem,42\nfoo,12\n")
+        .write_stdin("name,id\noem,11\nfoo,12\n")
         .assert()
         .success()
-        .stdout(predicate::str::contains("name,id\noem,42"));
+        .stdout(predicate::str::contains("name,id\noem,11"));
     Ok(())
 }

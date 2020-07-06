@@ -36,6 +36,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let filter_condition = match opt.cmd {
         Command::Filter { condition } => condition,
     };
+
+    fn print_table(filtered: Vec<csv::StringRecord>) {
+        for row in filtered {
+            println!("{}", row.iter().collect::<Vec<&str>>().join(","));
+        }
+    }
+
     match opt.input {
         Some(input) => {
             let file = File::open(input)?;
@@ -43,9 +50,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 &mut csv::Reader::from_reader(file),
                 filter_condition.as_str(),
             )?;
-            for row in filtered {
-                println!("{}", row.iter().collect::<Vec<&str>>().join(","));
-            }
+            print_table(filtered);
             Ok(())
         }
         None => {
@@ -53,7 +58,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 &mut csv::Reader::from_reader(io::stdin()),
                 filter_condition.as_str(),
             )?;
-            println!("{:?}", filtered);
+            print_table(filtered);
             Ok(())
         }
     }
