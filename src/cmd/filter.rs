@@ -14,9 +14,10 @@ pub fn filter<'a, R: io::Read + fmt::Debug + 'a>(
     rows.push(rdr.headers()?.clone());
     for result in rdr.records() {
         let record = result?;
-        let col = f32::from_str(&record[index])?;
-        if check.compare(col) {
-            rows.push(record);
+        if let Ok(col) = f32::from_str(&record[index]) {
+            if check.compare(col) {
+                rows.push(record);
+            }
         }
     }
     Ok(rows)
@@ -111,6 +112,22 @@ mod tests {
     #[test]
     fn test_filter_larger_than() -> Result<(), Box<dyn Error>> {
         let csv = "name,id\nmoo,12\nfoo,42";
+        let rdr = &mut csv::Reader::from_reader(csv.as_bytes());
+        let filtered = filter(rdr, "id>12")?;
+
+        assert_eq!(
+            filtered,
+            vec![
+                csv::StringRecord::from(vec!["name", "id"]),
+                csv::StringRecord::from(vec!["foo", "42"])
+            ]
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_filter_na_values() -> Result<(), Box<dyn Error>> {
+        let csv = "name,id\nmoo,12\ngoo,\nfoo,42";
         let rdr = &mut csv::Reader::from_reader(csv.as_bytes());
         let filtered = filter(rdr, "id>12")?;
 
