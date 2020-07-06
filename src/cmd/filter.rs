@@ -8,18 +8,27 @@ pub fn filter<'a, R: io::Read + fmt::Debug + 'a>(
     rdr: &mut csv::Reader<R>,
     condition: &str,
 ) -> Result<Vec<csv::StringRecord>, Box<dyn Error>> {
-    let mut rows: Vec<csv::StringRecord> = vec![];
     let index = get_col_index(rdr, condition)?;
     let check = get_condition_parts(condition)?;
-    rows.push(rdr.headers()?.clone());
-    for result in rdr.records() {
-        let record = result?;
-        if let Ok(col) = f32::from_str(&record[index]) {
-            if check.compare(col) {
-                rows.push(record);
+
+    let match_condition = |result: &Result<csv::StringRecord, csv::Error>| -> bool {
+        if let Ok(record) = result {
+            if let Ok(col) = f32::from_str(&record[index]) {
+                return check.compare(col);
+            } else {
+                return false;
             }
         }
-    }
+        false
+    };
+
+    let mut rows: Vec<csv::StringRecord> = rdr
+        .records()
+        .filter(|r| r.is_ok())
+        .filter(match_condition)
+        .flat_map(|x| x)
+        .collect();
+    rows.insert(0, rdr.headers()?.clone());
     Ok(rows)
 }
 
