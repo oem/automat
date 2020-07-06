@@ -1,8 +1,7 @@
-use assert_cmd::prelude::*;
+use assert_cmd::Command;
 use predicates::prelude::*;
 use std::error::Error;
 use std::io::Write;
-use std::process::Command;
 use tempfile::NamedTempFile;
 
 #[test]
@@ -32,5 +31,17 @@ fn test_filter_with_conditions() -> Result<(), Box<dyn Error>> {
     let mut cmd = Command::cargo_bin("atm")?;
     cmd.arg(file.path()).arg("filter").arg("id<12");
     cmd.assert().success();
+    Ok(())
+}
+
+#[test]
+fn test_filter_from_stdin() -> Result<(), Box<dyn Error>> {
+    let mut cmd = Command::cargo_bin("atm")?;
+    cmd.arg("filter")
+        .arg("id<12")
+        .write_stdin("name,id\noem,42\nfoo,12\n")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("name,id\noem,42"));
     Ok(())
 }
