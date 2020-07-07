@@ -72,7 +72,7 @@ impl Error for ParseConditionError {
 }
 
 fn get_condition_parts(condition: &str) -> Result<Check, Box<dyn Error>> {
-    let re = Regex::new(r"(>=|<|>|<=|==)(\d+)$")?;
+    let re = Regex::new(r"(>=|<|>|<=|==)(-*\d+)$")?;
     let mut operator = "".to_string();
     let mut value = 0.;
     for cap in re.captures_iter(condition) {
@@ -143,6 +143,21 @@ mod tests {
             ]
         );
         Ok(())
+    }
+
+    #[test]
+    fn test_filter_negative() {
+        let csv = "name,id\nmoo,12\nfoo,42";
+        let rdr = csv::Reader::from_reader(csv.as_bytes());
+        let filtered = filter(rdr, "id>-12").unwrap();
+        assert_eq!(
+            filtered,
+            vec![
+                csv::StringRecord::from(vec!["name", "id"]),
+                csv::StringRecord::from(vec!["moo", "12"]),
+                csv::StringRecord::from(vec!["foo", "42"])
+            ]
+        );
     }
 
     #[test]
