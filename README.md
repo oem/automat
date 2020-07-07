@@ -25,7 +25,7 @@ Simple filtering:
 
 Multiple filter commands can be chained together:
 
-`atm worldcitiespop.csv filter "Population<1000000"|atm filter "Longitude<-50`
+`atm worldcitiespop.csv filter "Population<1000000"|atm filter "Longitude<-50"`
 
 `atm` tries to be a good unix citizen. Use it with other commandline tools, like [xsv](https://github.com/BurntSushi/xsv) for example:
 
