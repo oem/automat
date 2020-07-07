@@ -13,7 +13,6 @@ pub fn filter<'a, R: io::Read + fmt::Debug + 'a>(
     let headers = rdr.headers()?.clone();
     let mut rows: Vec<csv::StringRecord> = rdr
         .records()
-        .filter(|r| r.is_ok())
         .flat_map(|x| x)
         .filter(|row| {
             if let Ok(col) = f32::from_str(&row[index]) {

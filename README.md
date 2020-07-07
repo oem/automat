@@ -41,6 +41,12 @@ If you have [rustup](https://rustup.rs) installed on your system you can simply 
 
 The benchmarks have been created with [hyperfine](https://github.com/sharkdp/hyperfine).
 
+### v.0.0.5
+
+| Command | Mean [s] | Min [s] | Max [s] | Relative |
+|:---|---:|---:|---:|---:|
+| `target/release/atm test.csv filter "Population<1000000"` | 1.352 ± 0.009 | 1.341 | 1.366 | 1.00 |
+
 ### v0.0.4
 
 | Command                                                   |      Mean [s] | Min [s] | Max [s] | Relative |
