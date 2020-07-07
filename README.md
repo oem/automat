@@ -18,3 +18,13 @@ Specifically, automat provides following functions to help you wrangle with your
 ## Usage
 
 ## Setup
+
+## Benchmarks
+
+The csv used for benchmarking has 3173958 rows and a size of around 151M.
+
+### v0.0.4
+
+| Command | Mean [s] | Min [s] | Max [s] | Relative |
+|:---|---:|---:|---:|---:|
+| `target/release/atm test.csv filter "Population<1000000"` | 1.360 ± 0.010 | 1.346 | 1.379 | 1.00 |
