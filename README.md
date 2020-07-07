@@ -21,7 +21,7 @@ Specifically, automat provides following functions to help you wrangle with your
 
 ## Benchmarks
 
-The csv used is in the benchmarks is the worldcitiespop dataset from the [Data Science Toolkit](https://github.com/petewarden/dstkdata).
+The csv used in the benchmarks is the worldcitiespop dataset from the [Data Science Toolkit](https://github.com/petewarden/dstkdata).
 
 ### v0.0.4
 
