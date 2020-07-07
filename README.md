@@ -17,6 +17,8 @@ Specifically, automat provides following functions to help you wrangle with your
 
 ## Usage
 
+The csv used in all the examples and benchmarks is the worldcitiespop dataset from the [Data Science Toolkit](https://github.com/petewarden/dstkdata).
+
 ### Filter
 
 Simple filtering:
@@ -29,7 +31,7 @@ Multiple filter commands can be chained together:
 
 `atm` tries to be a good unix citizen. Use it with other commandline tools, like [xsv](https://github.com/BurntSushi/xsv) for example:
 
-`atm test.csv filter "Population<20"|atm filter "Population>=10"|atm filter "Longitude<-50"|xsv select City,Population|xsv table`
+`atm worldcitiespop.csv filter "Population<20"|atm filter "Population>=10"|atm filter "Longitude<-50"|xsv select City,Population|xsv table`
 
 ## Setup
 
@@ -37,7 +39,7 @@ If you have [rustup](https://rustup.rs) installed on your system you can simply 
 
 ## Benchmarks
 
-The csv used in the benchmarks is the worldcitiespop dataset from the [Data Science Toolkit](https://github.com/petewarden/dstkdata).
+The benchmarks have been created with [hyperfine](https://github.com/sharkdp/hyperfine).
 
 ### v0.0.4
 
