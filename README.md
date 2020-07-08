@@ -37,6 +37,12 @@ Multiple filter commands can be chained together:
 
 If you have [rustup](https://rustup.rs) installed on your system you can simply run `cargo install automat`.
 
+You can also run it via docker.
+
+If you for example have a csv file called worldcitiespop.csv in your local directory:
+
+`docker run --rm -v $(PWD):/data oembot/automat  ./atm /data/worldcitiespop.csv filter "Population<10"`
+
 ## Benchmarks
 
 The benchmarks have been created with [hyperfine](https://github.com/sharkdp/hyperfine).
