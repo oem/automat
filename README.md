@@ -6,7 +6,7 @@ It is a tool to help with initial exploratory data analysis on the command line.
 
 Specifically, automat provides following functions to help you wrangle with your data:
 
-- [ ] filter (in progress, majority implemented) :toolbox:
+- [x] filter (can filter numerical values)
 - [ ] mutate
 - [ ] summarize
 - [ ] arrange

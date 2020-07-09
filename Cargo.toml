@@ -1,6 +1,6 @@
 [package]
 name = "automat"
-version = "0.0.6"
+version = "0.0.7"
 authors = ["Ömür Özkir <oemuer.oezkir@gmail.com>"]
 edition = "2018"
 description = "Data wrangling from the command line"
