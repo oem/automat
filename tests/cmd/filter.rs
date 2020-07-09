@@ -41,3 +41,15 @@ fn test_filter_different_column() -> Result<(), Box<dyn Error>> {
         .stdout(predicate::str::contains("age,name\n140,foo\n42,goo"));
     Ok(())
 }
+
+#[test]
+fn test_filter_equal() -> Result<(), Box<dyn Error>> {
+    let mut file = NamedTempFile::new()?;
+    writeln!(file, "age,name\n140,foo\n22,goo\n21,moo\n")?;
+    let mut cmd = Command::cargo_bin("atm")?;
+    cmd.arg(file.path()).arg("filter").arg("age==22");
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("age,name\n22,goo"));
+    Ok(())
+}

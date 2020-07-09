@@ -32,6 +32,7 @@ enum Check {
     SmallerThan(f32),
     GreaterThanOrEqual(f32),
     SmallerThanOrEqual(f32),
+    Equal(f32),
 }
 
 impl Check {
@@ -41,6 +42,7 @@ impl Check {
             Self::GreaterThanOrEqual(n) => other >= *n,
             Self::SmallerThan(n) => other < *n,
             Self::SmallerThanOrEqual(n) => other <= *n,
+            Self::Equal(n) => other == *n,
         }
     }
 }
@@ -84,6 +86,7 @@ fn get_condition_parts(condition: &str) -> Result<Check, Box<dyn Error>> {
         ">" => Ok(Check::GreaterThan(value)),
         "<=" => Ok(Check::SmallerThanOrEqual(value)),
         "<" => Ok(Check::SmallerThan(value)),
+        "==" => Ok(Check::Equal(value)),
         a @ _ => Err(Box::new(ParseConditionError::new(
             format!("Unknown operator {}", a).as_str(),
         ))),
@@ -217,6 +220,12 @@ mod tests {
         assert_eq!(Check::SmallerThanOrEqual(4.).compare(4.), true);
         assert_eq!(Check::SmallerThanOrEqual(42.).compare(12.), true);
         assert_eq!(Check::SmallerThanOrEqual(2.).compare(12.), false);
+    }
+
+    #[test]
+    fn test_compare_equal() {
+        assert_eq!(Check::Equal(4.).compare(4.), true);
+        assert_eq!(Check::Equal(42.).compare(12.), false);
     }
 
     #[test]
