@@ -1,21 +1,21 @@
 [package]
-name = "automat"
-version = "0.0.7"
 authors = ["Ömür Özkir <oemuer.oezkir@gmail.com>"]
-edition = "2018"
 description = "Data wrangling from the command line"
+edition = "2018"
 license = "Unlicense/MIT"
+name = "automat"
 readme = "README.md"
 repository = "https://github.com/oem/automat"
+version = "0.0.8"
 
 [[bin]]
 name = "atm"
 path = "src/main.rs"
 
 [dependencies]
-structopt = "0.3.13"
 csv = "1.1"
 regex = "1"
+structopt = "0.3.13"
 
 [dev-dependencies]
 assert_cmd = "1.0.1"
