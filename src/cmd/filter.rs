@@ -13,7 +13,7 @@ pub fn filter<'a, R: io::Read + fmt::Debug + 'a>(
     let headers = rdr.headers()?.clone();
     let mut rows: Vec<csv::StringRecord> = rdr
         .records()
-        .flat_map(|x| x)
+        .flatten()
         .filter(|row| {
             if let Ok(col) = f32::from_str(&row[index]) {
                 return check.compare(col);
@@ -42,7 +42,10 @@ impl Check {
             Self::GreaterThanOrEqual(n) => other >= *n,
             Self::SmallerThan(n) => other < *n,
             Self::SmallerThanOrEqual(n) => other <= *n,
-            Self::Equal(n) => other == *n,
+            Self::Equal(n) => {
+                let error_margin = f32::EPSILON;
+                (*n - other).abs() < error_margin
+            }
         }
     }
 }
@@ -87,7 +90,7 @@ fn get_condition_parts(condition: &str) -> Result<Check, Box<dyn Error>> {
         "<=" => Ok(Check::SmallerThanOrEqual(value)),
         "<" => Ok(Check::SmallerThan(value)),
         "==" => Ok(Check::Equal(value)),
-        a @ _ => Err(Box::new(ParseConditionError::new(
+        a => Err(Box::new(ParseConditionError::new(
             format!("Unknown operator {}", a).as_str(),
         ))),
     }
