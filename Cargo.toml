@@ -6,6 +6,7 @@ edition = "2018"
 description = "Data wrangling from the command line"
 license = "Unlicense/MIT"
 readme = "README.md"
+repository = "https://github.com/oem/automat"
 
 [[bin]]
 name = "atm"
