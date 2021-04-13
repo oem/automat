@@ -37,6 +37,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         Command::Filter { condition } => condition,
     };
 
+    // remove whitespace
+    let filter_condition: String = filter_condition.replace(" ", "");
+
     fn print_table(filtered: Vec<csv::StringRecord>) {
         for row in filtered {
             println!("{}", row.iter().collect::<Vec<&str>>().join(","));
