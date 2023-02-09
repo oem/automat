@@ -1,21 +1,22 @@
 [package]
 authors = ["Ömür Özkir <oemuer.oezkir@gmail.com>"]
-description = "Data wrangling from the command line"
-edition = "2018"
+description = "A Vector Programming Language"
+edition = "2021"
 license = "Unlicense/MIT"
 name = "automat"
 readme = "README.md"
 repository = "https://github.com/oem/automat"
-version = "0.0.8"
+version = "0.1.0"
 
 [[bin]]
 name = "atm"
 path = "src/main.rs"
 
 [dependencies]
+anyhow = "1.0.69"
+clap = { version = "4.1.4", features = [ "derive"] }
 csv = "1.1"
 regex = "1"
-structopt = "0.3.13"
 
 [dev-dependencies]
 assert_cmd = "2.0.4"

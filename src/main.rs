@@ -1,59 +1,20 @@
-extern crate csv;
-mod cmd;
+mod repl;
+mod scanner;
+mod token;
 
-use csv::Reader;
-use std::error::Error;
-use std::io;
-use std::path::PathBuf;
-use structopt::StructOpt;
+use clap::Parser;
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    name = "automat",
-    about = "Exploratory data analysis via the command line."
-)]
-struct Opt {
-    /// select subcommand
-    #[structopt(subcommand)]
-    cmd: Command,
-
-    /// tabular data input, stdin if not present
-    #[structopt(parse(from_os_str))]
-    input: Option<PathBuf>,
+#[derive(Parser)]
+#[command(author,version,about,long_about=None)]
+struct Args {
+    filename: Option<std::path::PathBuf>,
 }
 
-#[derive(Debug, StructOpt)]
-enum Command {
-    /// filter columns by condition provided
-    Filter {
-        #[structopt(required = true)]
-        condition: String,
-    },
-}
-
-fn main() -> Result<(), Box<dyn Error>> {
-    let opt = Opt::from_args();
-    let filter_condition = match opt.cmd {
-        Command::Filter { condition } => condition,
-    };
-
-    fn print_table(filtered: Vec<csv::StringRecord>) {
-        for row in filtered {
-            println!("{}", row.iter().collect::<Vec<&str>>().join(","));
-        }
-    }
-
-    match opt.input {
-        Some(input) => {
-            let filtered = cmd::filter(Reader::from_path(input)?, filter_condition.as_str())?;
-            print_table(filtered);
-            Ok(())
-        }
-        None => {
-            let filtered =
-                cmd::filter(Reader::from_reader(io::stdin()), filter_condition.as_str())?;
-            print_table(filtered);
-            Ok(())
-        }
+fn main() -> Result<(), anyhow::Error> {
+    let args = Args::parse();
+    if let Some(_filename) = args.filename {
+        Ok(())
+    } else {
+        Ok(repl::run())
     }
 }
