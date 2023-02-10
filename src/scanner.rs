@@ -1,3 +1,5 @@
+use crate::token::Token;
+
 #[derive(Debug)]
 pub enum ScannerError {
     UnknownTokenError,
@@ -10,6 +12,8 @@ impl std::fmt::Display for ScannerError {
 }
 
 impl std::error::Error for ScannerError {}
+
+#[derive(Debug)]
 pub struct Scanner {
     input: Vec<char>,
     pub position: usize,
@@ -25,6 +29,11 @@ impl Scanner {
             read_position: 0,
             ch: None,
         }
+    }
+
+    pub fn scan(&mut self) -> Vec<Token> {
+        let tokens = Vec::new();
+        tokens
     }
 }
 

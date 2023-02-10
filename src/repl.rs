@@ -1,5 +1,7 @@
 use std::io::{stdin, stdout, Write};
 
+use crate::scanner::Scanner;
+
 pub fn run() {
     let mut stdout = stdout();
 
@@ -11,7 +13,9 @@ pub fn run() {
         stdin
             .read_line(&mut buffer)
             .expect("Unable to read from stdin");
-        print!("{buffer}");
+        let mut scanner = Scanner::new(buffer.trim().chars().collect());
+        let scanned = scanner.scan();
+        println!("{:?}", scanned);
 
         if buffer.len() == 0 {
             return;
