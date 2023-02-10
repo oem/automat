@@ -35,5 +35,14 @@ impl Scanner {
         let tokens = Vec::new();
         tokens
     }
-}
 
+    pub fn read_char(&mut self) {
+        if self.read_position >= self.input.len() {
+            self.ch = None;
+        } else {
+            self.ch = Some(self.input[self.read_position])
+        }
+        self.position = self.read_position;
+        self.read_position = self.read_position + 1;
+    }
+}
