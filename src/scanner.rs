@@ -46,3 +46,35 @@ impl Scanner {
         self.read_position = self.read_position + 1;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_assignment() {
+        let input = "1:x".chars().collect();
+        let expected = vec![
+            Token::NUMBER(vec!['1']),
+            Token::COLON,
+            Token::IDENTIFIER(vec!['x']),
+            Token::EOF,
+        ];
+        let mut l = Scanner::new(input);
+        let actual = l.scan();
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_enum() {
+        let input = "12!".chars().collect();
+        let expected = vec![
+            Token::NUMBER(vec!['1', '2']),
+            Token::EXCLAMATION,
+            Token::EOF,
+        ];
+        let mut l = Scanner::new(input);
+        let actual = l.scan();
+        assert_eq!(actual, expected);
+    }
+}
