@@ -1,8 +1,8 @@
-use crate::token::Token;
+use crate::token::TokenType;
 
 #[derive(Debug)]
 pub enum ScannerError {
-    UnknownTokenError,
+    UnknownTokenTypeError,
 }
 
 impl std::fmt::Display for ScannerError {
@@ -31,7 +31,7 @@ impl Scanner {
         }
     }
 
-    pub fn scan(&mut self) -> Vec<Token> {
+    pub fn scan(&mut self) -> Vec<TokenType> {
         let tokens = Vec::new();
         tokens
     }
@@ -55,10 +55,10 @@ mod tests {
     fn test_assignment() {
         let input = "1:x".chars().collect();
         let expected = vec![
-            Token::NUMBER(vec!['1']),
-            Token::COLON,
-            Token::IDENTIFIER(vec!['x']),
-            Token::EOF,
+            TokenType::NUMBER(vec!['1']),
+            TokenType::COLON,
+            TokenType::IDENTIFIER(vec!['x']),
+            TokenType::EOF,
         ];
         let mut l = Scanner::new(input);
         let actual = l.scan();
@@ -69,9 +69,9 @@ mod tests {
     fn test_enum() {
         let input = "12!".chars().collect();
         let expected = vec![
-            Token::NUMBER(vec!['1', '2']),
-            Token::EXCLAMATION,
-            Token::EOF,
+            TokenType::NUMBER(vec!['1', '2']),
+            TokenType::EXCLAMATION,
+            TokenType::EOF,
         ];
         let mut l = Scanner::new(input);
         let actual = l.scan();
