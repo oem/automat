@@ -109,8 +109,8 @@ impl Scanner {
         let token_type: TokenType;
         if let Some(ch) = self.ch {
             token_type = match ch {
-                t @ ':' => TokenType::COLON,
-                t @ '!' => TokenType::EXCLAMATION,
+                t @ ':' => TokenType::COLON(t),
+                t @ '!' => TokenType::EXCLAMATION(t),
                 '\n' | '\r' => TokenType::EOL,
                 '"' => {
                     self.read_char();
@@ -146,7 +146,7 @@ mod tests {
         let input = "1:x".chars().collect();
         let expected = vec![
             TokenType::NUMBER(vec!['1']),
-            TokenType::COLON,
+            TokenType::COLON(':'),
             TokenType::IDENTIFIER(vec!['x']),
             TokenType::EOF,
         ];
@@ -160,7 +160,7 @@ mod tests {
         let input = "12!".chars().collect();
         let expected = vec![
             TokenType::NUMBER(vec!['1', '2']),
-            TokenType::EXCLAMATION,
+            TokenType::EXCLAMATION('!'),
             TokenType::EOF,
         ];
         let mut l = Scanner::new(input);
