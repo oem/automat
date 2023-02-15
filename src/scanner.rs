@@ -1,8 +1,8 @@
-use crate::token::TokenType;
+use crate::token::Token;
 
 #[derive(Debug)]
 pub enum ScannerError {
-    UnknownTokenTypeError,
+    UnknownTokenError,
 }
 
 impl std::fmt::Display for ScannerError {
@@ -45,11 +45,11 @@ impl Scanner {
         s
     }
 
-    pub fn scan(&mut self) -> Vec<TokenType> {
+    pub fn scan(&mut self) -> Vec<Token> {
         let mut tokens = Vec::new();
         loop {
             let token = self.next_token();
-            if token == TokenType::EOF {
+            if token == Token::EOF {
                 tokens.push(token);
                 break;
             }
@@ -76,7 +76,7 @@ impl Scanner {
         }
     }
 
-    pub fn next_token(&mut self) -> TokenType {
+    pub fn next_token(&mut self) -> Token {
         let read_identifier = |l: &mut Scanner| -> Vec<char> {
             let position = l.position;
             while l.position < l.input.len() && l.ch.is_some() && is_letter(l.ch.unwrap()) {
@@ -106,30 +106,30 @@ impl Scanner {
 
         self.skip_whitespace();
 
-        let token_type: TokenType;
+        let token_type: Token;
         if let Some(ch) = self.ch {
             token_type = match ch {
-                t @ ':' => TokenType::COLON(t),
-                t @ '!' => TokenType::EXCLAMATION(t),
-                '\n' | '\r' => TokenType::EOL,
+                t @ ':' => Token::COLON(t),
+                t @ '!' => Token::EXCLAMATION(t),
+                '\n' | '\r' => Token::EOL,
                 '"' => {
                     self.read_char();
                     let str: Vec<char> = read_string(self);
-                    TokenType::STRING(str)
+                    Token::STRING(str)
                 }
                 'A'..='Z' | 'a'..='z' => {
                     let ident: Vec<char> = read_identifier(self);
-                    return TokenType::IDENTIFIER(ident); // we don't want to call read_char after he
-                                                         // match again, so we return here already
+                    return Token::IDENTIFIER(ident); // we don't want to call read_char after he
+                                                     // match again, so we return here already
                 }
                 '0'..='9' => {
                     let num: Vec<char> = read_number(self);
-                    return TokenType::NUMBER(num); // same here
+                    return Token::NUMBER(num); // same here
                 }
-                t @ _ => TokenType::ILLEGAL(vec![t]),
+                t @ _ => Token::ILLEGAL(vec![t]),
             };
         } else {
-            token_type = TokenType::EOF;
+            token_type = Token::EOF;
         }
 
         self.read_char();
@@ -145,10 +145,10 @@ mod tests {
     fn test_assignment() {
         let input = "1:x".chars().collect();
         let expected = vec![
-            TokenType::NUMBER(vec!['1']),
-            TokenType::COLON(':'),
-            TokenType::IDENTIFIER(vec!['x']),
-            TokenType::EOF,
+            Token::NUMBER(vec!['1']),
+            Token::COLON(':'),
+            Token::IDENTIFIER(vec!['x']),
+            Token::EOF,
         ];
         let mut l = Scanner::new(input);
         let actual = l.scan();
@@ -159,9 +159,9 @@ mod tests {
     fn test_enum() {
         let input = "12!".chars().collect();
         let expected = vec![
-            TokenType::NUMBER(vec!['1', '2']),
-            TokenType::EXCLAMATION('!'),
-            TokenType::EOF,
+            Token::NUMBER(vec!['1', '2']),
+            Token::EXCLAMATION('!'),
+            Token::EOF,
         ];
         let mut l = Scanner::new(input);
         let actual = l.scan();
