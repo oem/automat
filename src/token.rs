@@ -1,6 +1,6 @@
 #[derive(Debug, PartialEq)]
 pub enum Token {
-    EOL,
+    EOL(TokenDetails),
     EOF,
     EXCLAMATION(char),
     COLON(char),
@@ -11,4 +11,11 @@ pub enum Token {
     IDENTIFIER(Vec<char>),
     STRING(Vec<char>),
     ILLEGAL(Vec<char>),
+}
+
+#[derive(Debug, PartialEq)]
+pub struct TokenDetails {
+    pub row: usize,
+    pub col: usize,
+    pub literal: Vec<char>,
 }

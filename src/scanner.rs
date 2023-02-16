@@ -1,4 +1,4 @@
-use crate::token::Token;
+use crate::token::{Token, TokenDetails};
 
 #[derive(Debug)]
 pub enum ScannerError {
@@ -31,6 +31,8 @@ pub struct Scanner {
     pub position: usize,
     pub read_position: usize,
     pub ch: Option<char>,
+    row: usize,
+    col: usize,
 }
 
 impl Scanner {
@@ -40,6 +42,8 @@ impl Scanner {
             position: 0,
             read_position: 0,
             ch: None,
+            row: 0,
+            col: 0,
         };
         s.read_char();
         s
@@ -66,14 +70,7 @@ impl Scanner {
         }
         self.position = self.read_position;
         self.read_position = self.read_position + 1;
-    }
-
-    pub fn skip_whitespace(&mut self) {
-        if let Some(ch) = self.ch {
-            if ch == ' ' || ch == '\t' {
-                self.read_char();
-            }
-        }
+        self.col = self.col + 1;
     }
 
     pub fn next_token(&mut self) -> Token {
@@ -104,14 +101,22 @@ impl Scanner {
             l.input[position..l.position].to_vec()
         };
 
-        self.skip_whitespace();
-
-        let token_type: Token;
+        let token: Token;
         if let Some(ch) = self.ch {
-            token_type = match ch {
+            token = match ch {
                 t @ ':' => Token::COLON(t),
                 t @ '!' => Token::EXCLAMATION(t),
-                '\n' | '\r' => Token::EOL,
+                t @ '\n' | t @ '\r' => {
+                    let token_details = Token::EOL(TokenDetails {
+                        row: self.row,
+                        col: self.col - 1,
+                        // one col back, the length of this literal, since read_char already advanced that length
+                        literal: vec![t],
+                    });
+                    self.row = self.row + 1;
+                    self.col = 0;
+                    token_details
+                }
                 '"' => {
                     self.read_char();
                     let str: Vec<char> = read_string(self);
@@ -129,11 +134,11 @@ impl Scanner {
                 t @ _ => Token::ILLEGAL(vec![t]),
             };
         } else {
-            token_type = Token::EOF;
+            token = Token::EOF;
         }
 
         self.read_char();
-        token_type
+        token
     }
 }
 
@@ -161,6 +166,32 @@ mod tests {
         let expected = vec![
             Token::NUMBER(vec!['1', '2']),
             Token::EXCLAMATION('!'),
+            Token::EOF,
+        ];
+        let mut l = Scanner::new(input);
+        let actual = l.scan();
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_location_of_token() {
+        let input = "1!\n1:x\n".chars().collect();
+        let expected = vec![
+            Token::NUMBER(vec!['1']),
+            Token::EXCLAMATION('!'),
+            Token::EOL(TokenDetails {
+                row: 0,
+                col: 2,
+                literal: vec!['\n'],
+            }),
+            Token::NUMBER(vec!['1']),
+            Token::COLON(':'),
+            Token::IDENTIFIER(vec!['x']),
+            Token::EOL(TokenDetails {
+                row: 1,
+                col: 3,
+                literal: vec!['\n'],
+            }),
             Token::EOF,
         ];
         let mut l = Scanner::new(input);
