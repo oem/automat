@@ -2,7 +2,7 @@
 pub enum Token {
     EOL(TokenDetails),
     EOF,
-    EXCLAMATION(char),
+    EXCLAMATION(TokenDetails),
     COLON(char),
     PLUS(char),
     MINUS(char),
@@ -18,4 +18,13 @@ pub struct TokenDetails {
     pub row: usize,
     pub col: usize,
     pub literal: Vec<char>,
+}
+
+impl Token {
+    fn length(&self) -> Option<usize> {
+        match self {
+            Token::EOL(details) => Some(details.literal.len()),
+            _ => None,
+        }
+    }
 }

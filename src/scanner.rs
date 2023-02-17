@@ -105,7 +105,11 @@ impl Scanner {
         if let Some(ch) = self.ch {
             token = match ch {
                 t @ ':' => Token::COLON(t),
-                t @ '!' => Token::EXCLAMATION(t),
+                t @ '!' => Token::EXCLAMATION(TokenDetails {
+                    row: self.row,
+                    col: self.col - 1,
+                    literal: vec![t],
+                }),
                 t @ '\n' | t @ '\r' => {
                     let token_details = Token::EOL(TokenDetails {
                         row: self.row,
@@ -165,7 +169,11 @@ mod tests {
         let input = "12!".chars().collect();
         let expected = vec![
             Token::NUMBER(vec!['1', '2']),
-            Token::EXCLAMATION('!'),
+            Token::EXCLAMATION(TokenDetails {
+                row: 0,
+                col: 2,
+                literal: vec!['!'],
+            }),
             Token::EOF,
         ];
         let mut l = Scanner::new(input);
@@ -178,7 +186,11 @@ mod tests {
         let input = "1!\n1:x\n".chars().collect();
         let expected = vec![
             Token::NUMBER(vec!['1']),
-            Token::EXCLAMATION('!'),
+            Token::EXCLAMATION(TokenDetails {
+                row: 0,
+                col: 1,
+                literal: vec!['!'],
+            }),
             Token::EOL(TokenDetails {
                 row: 0,
                 col: 2,
