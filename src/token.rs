@@ -3,14 +3,14 @@ pub enum Token {
     EOL(TokenDetails),
     EOF,
     EXCLAMATION(TokenDetails),
-    COLON(char),
-    PLUS(char),
-    MINUS(char),
-    STAR(char),
-    NUMBER(Vec<char>),
-    IDENTIFIER(Vec<char>),
-    STRING(Vec<char>),
-    ILLEGAL(Vec<char>),
+    COLON(TokenDetails),
+    PLUS(TokenDetails),
+    MINUS(TokenDetails),
+    STAR(TokenDetails),
+    NUMBER(TokenDetails),
+    IDENTIFIER(TokenDetails),
+    STRING(TokenDetails),
+    ILLEGAL(TokenDetails),
 }
 
 #[derive(Debug, PartialEq)]

@@ -168,7 +168,11 @@ mod tests {
     fn test_enum() {
         let input = "12!".chars().collect();
         let expected = vec![
-            Token::NUMBER(vec!['1', '2']),
+            Token::NUMBER(TokenDetails {
+                row: 0,
+                col: 0,
+                literal: vec!['1', '2'],
+            }),
             Token::EXCLAMATION(TokenDetails {
                 row: 0,
                 col: 2,
@@ -185,7 +189,11 @@ mod tests {
     fn test_location_of_token() {
         let input = "1!\n1:x\n".chars().collect();
         let expected = vec![
-            Token::NUMBER(vec!['1']),
+            Token::NUMBER(TokenDetails {
+                row: 0,
+                col: 0,
+                literal: vec!['1'],
+            }),
             Token::EXCLAMATION(TokenDetails {
                 row: 0,
                 col: 1,
@@ -196,9 +204,21 @@ mod tests {
                 col: 2,
                 literal: vec!['\n'],
             }),
-            Token::NUMBER(vec!['1']),
-            Token::COLON(':'),
-            Token::IDENTIFIER(vec!['x']),
+            Token::NUMBER(TokenDetails {
+                row: 1,
+                col: 0,
+                literal: vec!['1'],
+            }),
+            Token::COLON(TokenDetails {
+                row: 1,
+                col: 1,
+                literal: vec![':'],
+            }),
+            Token::IDENTIFIER(TokenDetails {
+                row: 1,
+                col: 2,
+                literal: vec!['x'],
+            }),
             Token::EOL(TokenDetails {
                 row: 1,
                 col: 3,
@@ -210,4 +230,14 @@ mod tests {
         let actual = l.scan();
         assert_eq!(actual, expected);
     }
+
+    fn test_arithmetic_tokens() {
+        let input = "12+3*2-4:x\n".chars().collect();
+        let expected = vec![];
+        let mut l = Scanner::new(input);
+        let actual = l.scan();
+        assert_eq!(actual, expected);
+    }
+
+    fn test_whitespace_location() {}
 }
