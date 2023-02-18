@@ -104,7 +104,11 @@ impl Scanner {
         let token: Token;
         if let Some(ch) = self.ch {
             token = match ch {
-                t @ ':' => Token::COLON(t),
+                t @ ':' => Token::COLON(TokenDetails {
+                    row: self.row,
+                    col: self.col,
+                    literal: vec![t],
+                }),
                 t @ '!' => Token::EXCLAMATION(TokenDetails {
                     row: self.row,
                     col: self.col - 1,
@@ -124,18 +128,34 @@ impl Scanner {
                 '"' => {
                     self.read_char();
                     let str: Vec<char> = read_string(self);
-                    Token::STRING(str)
+                    Token::STRING(TokenDetails {
+                        row: self.row,
+                        col: self.col,
+                        literal: str,
+                    })
                 }
                 'A'..='Z' | 'a'..='z' => {
                     let ident: Vec<char> = read_identifier(self);
-                    return Token::IDENTIFIER(ident); // we don't want to call read_char after he
-                                                     // match again, so we return here already
+                    return Token::IDENTIFIER(TokenDetails {
+                        row: self.row,
+                        col: self.col,
+                        literal: ident,
+                    }); // we don't want to call read_char after he
+                        // match again, so we return here already
                 }
                 '0'..='9' => {
                     let num: Vec<char> = read_number(self);
-                    return Token::NUMBER(num); // same here
+                    return Token::NUMBER(TokenDetails {
+                        row: self.row,
+                        col: self.col,
+                        literal: num,
+                    }); // same here
                 }
-                t @ _ => Token::ILLEGAL(vec![t]),
+                t @ _ => Token::ILLEGAL(TokenDetails {
+                    row: self.row,
+                    col: self.col,
+                    literal: vec![t],
+                }),
             };
         } else {
             token = Token::EOF;
@@ -154,9 +174,21 @@ mod tests {
     fn test_assignment() {
         let input = "1:x".chars().collect();
         let expected = vec![
-            Token::NUMBER(vec!['1']),
-            Token::COLON(':'),
-            Token::IDENTIFIER(vec!['x']),
+            Token::NUMBER(TokenDetails {
+                row: 0,
+                col: 0,
+                literal: vec!['1'],
+            }),
+            Token::COLON(TokenDetails {
+                row: 0,
+                col: 1,
+                literal: vec![':'],
+            }),
+            Token::IDENTIFIER(TokenDetails {
+                row: 0,
+                col: 2,
+                literal: vec!['x'],
+            }),
             Token::EOF,
         ];
         let mut l = Scanner::new(input);
@@ -230,6 +262,8 @@ mod tests {
         let actual = l.scan();
         assert_eq!(actual, expected);
     }
+
+    fn test_multichar_tokens() {}
 
     fn test_arithmetic_tokens() {
         let input = "12+3*2-4:x\n".chars().collect();
