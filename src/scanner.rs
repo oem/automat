@@ -106,7 +106,7 @@ impl Scanner {
             token = match ch {
                 t @ ':' => Token::COLON(TokenDetails {
                     row: self.row,
-                    col: self.col,
+                    col: self.col - 1,
                     literal: vec![t],
                 }),
                 t @ '!' => Token::EXCLAMATION(TokenDetails {
@@ -138,7 +138,7 @@ impl Scanner {
                     let ident: Vec<char> = read_identifier(self);
                     return Token::IDENTIFIER(TokenDetails {
                         row: self.row,
-                        col: self.col,
+                        col: self.col - ident.len() - 1,
                         literal: ident,
                     }); // we don't want to call read_char after he
                         // match again, so we return here already
@@ -147,13 +147,13 @@ impl Scanner {
                     let num: Vec<char> = read_number(self);
                     return Token::NUMBER(TokenDetails {
                         row: self.row,
-                        col: self.col,
+                        col: self.col - num.len() - 1,
                         literal: num,
                     }); // same here
                 }
                 t @ _ => Token::ILLEGAL(TokenDetails {
                     row: self.row,
-                    col: self.col,
+                    col: self.col - 1,
                     literal: vec![t],
                 }),
             };
