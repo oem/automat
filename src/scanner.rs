@@ -114,6 +114,26 @@ impl Scanner {
                     col: self.col - 1,
                     literal: vec![t],
                 }),
+                t @ '+' => Token::PLUS(TokenDetails {
+                    row: self.row,
+                    col: self.col - 1,
+                    literal: vec![t],
+                }),
+                t @ '-' => Token::MINUS(TokenDetails {
+                    row: self.row,
+                    col: self.col - 1,
+                    literal: vec![t],
+                }),
+                t @ '*' => Token::STAR(TokenDetails {
+                    row: self.row,
+                    col: self.col - 1,
+                    literal: vec![t],
+                }),
+                t @ '%' => Token::PERCENTAGE(TokenDetails {
+                    row: self.row,
+                    col: self.col - 1,
+                    literal: vec![t],
+                }),
                 t @ '\n' | t @ '\r' => {
                     let token_details = Token::EOL(TokenDetails {
                         row: self.row,
@@ -296,6 +316,21 @@ mod tests {
                 row: 0,
                 col: 6,
                 literal: vec!['-'],
+            }),
+            Token::NUMBER(TokenDetails {
+                row: 0,
+                col: 7,
+                literal: vec!['2'],
+            }),
+            Token::PERCENTAGE(TokenDetails {
+                row: 0,
+                col: 8,
+                literal: vec!['%'],
+            }),
+            Token::NUMBER(TokenDetails {
+                row: 0,
+                col: 9,
+                literal: vec!['2'],
             }),
             Token::COLON(TokenDetails {
                 row: 0,
