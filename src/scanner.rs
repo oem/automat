@@ -263,15 +263,63 @@ mod tests {
         assert_eq!(actual, expected);
     }
 
-    fn test_multichar_tokens() {}
-
+    #[test]
     fn test_arithmetic_tokens() {
-        let input = "12+3*2-4:x\n".chars().collect();
-        let expected = vec![];
+        let input = "12+3*2-2%2:x\n".chars().collect();
+        let expected = vec![
+            Token::NUMBER(TokenDetails {
+                row: 0,
+                col: 0,
+                literal: vec!['1', '2'],
+            }),
+            Token::PLUS(TokenDetails {
+                row: 0,
+                col: 2,
+                literal: vec!['+'],
+            }),
+            Token::NUMBER(TokenDetails {
+                row: 0,
+                col: 3,
+                literal: vec!['3'],
+            }),
+            Token::STAR(TokenDetails {
+                row: 0,
+                col: 4,
+                literal: vec!['*'],
+            }),
+            Token::NUMBER(TokenDetails {
+                row: 0,
+                col: 5,
+                literal: vec!['2'],
+            }),
+            Token::MINUS(TokenDetails {
+                row: 0,
+                col: 6,
+                literal: vec!['-'],
+            }),
+            Token::COLON(TokenDetails {
+                row: 0,
+                col: 10,
+                literal: vec![':'],
+            }),
+            Token::IDENTIFIER(TokenDetails {
+                row: 0,
+                col: 11,
+                literal: vec!['x'],
+            }),
+            Token::EOL(TokenDetails {
+                row: 0,
+                col: 12,
+                literal: vec!['\n'],
+            }),
+            Token::EOF,
+        ];
         let mut l = Scanner::new(input);
         let actual = l.scan();
         assert_eq!(actual, expected);
     }
+
+    fn test_multichar_tokens() {}
 
     fn test_whitespace_location() {}
 }

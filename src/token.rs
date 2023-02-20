@@ -7,6 +7,7 @@ pub enum Token {
     PLUS(TokenDetails),
     MINUS(TokenDetails),
     STAR(TokenDetails),
+    PERCENTAGE(TokenDetails),
     NUMBER(TokenDetails),
     IDENTIFIER(TokenDetails),
     STRING(TokenDetails),
