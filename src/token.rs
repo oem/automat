@@ -2,16 +2,16 @@
 pub enum Token {
     EOL(TokenDetails),
     EOF,
-    EXCLAMATION(TokenDetails),
-    COLON(TokenDetails),
-    PLUS(TokenDetails),
-    MINUS(TokenDetails),
-    STAR(TokenDetails),
-    PERCENTAGE(TokenDetails),
-    NUMBER(TokenDetails),
-    IDENTIFIER(TokenDetails),
-    STRING(TokenDetails),
-    ILLEGAL(TokenDetails),
+    Exclamation(TokenDetails),
+    Colon(TokenDetails),
+    Plus(TokenDetails),
+    Minus(TokenDetails),
+    Star(TokenDetails),
+    Percentage(TokenDetails),
+    Number(TokenDetails),
+    Identifier(TokenDetails),
+    String(TokenDetails),
+    Illegal(TokenDetails),
 }
 
 #[derive(Debug, PartialEq)]

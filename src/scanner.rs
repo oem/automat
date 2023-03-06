@@ -21,7 +21,7 @@ fn is_digit(ch: char) -> bool {
     '0' <= ch && ch <= '9'
 }
 
-fn is_string_delimiter(ch: char) -> bool {
+fn is_String_delimiter(ch: char) -> bool {
     ch == '"'
 }
 
@@ -74,7 +74,7 @@ impl Scanner {
     }
 
     pub fn next_token(&mut self) -> Token {
-        let read_identifier = |l: &mut Scanner| -> Vec<char> {
+        let read_Identifier = |l: &mut Scanner| -> Vec<char> {
             let position = l.position;
             while l.position < l.input.len() && l.ch.is_some() && is_letter(l.ch.unwrap()) {
                 l.read_char();
@@ -82,7 +82,7 @@ impl Scanner {
             l.input[position..l.position].to_vec()
         };
 
-        let read_number = |l: &mut Scanner| -> Vec<char> {
+        let read_Number = |l: &mut Scanner| -> Vec<char> {
             let position = l.position;
             while l.position < l.input.len() && l.ch.is_some() && is_digit(l.ch.unwrap()) {
                 l.read_char();
@@ -90,11 +90,11 @@ impl Scanner {
             l.input[position..l.position].to_vec()
         };
 
-        let read_string = |l: &mut Scanner| -> Vec<char> {
+        let read_String = |l: &mut Scanner| -> Vec<char> {
             let position = l.position;
             while l.position < l.input.len()
                 && l.ch.is_some()
-                && !is_string_delimiter(l.ch.unwrap())
+                && !is_String_delimiter(l.ch.unwrap())
             {
                 l.read_char();
             }
@@ -104,32 +104,32 @@ impl Scanner {
         let token: Token;
         if let Some(ch) = self.ch {
             token = match ch {
-                t @ ':' => Token::COLON(TokenDetails {
+                t @ ':' => Token::Colon(TokenDetails {
                     row: self.row,
                     col: self.col - 1,
                     literal: vec![t],
                 }),
-                t @ '!' => Token::EXCLAMATION(TokenDetails {
+                t @ '!' => Token::Exclamation(TokenDetails {
                     row: self.row,
                     col: self.col - 1,
                     literal: vec![t],
                 }),
-                t @ '+' => Token::PLUS(TokenDetails {
+                t @ '+' => Token::Plus(TokenDetails {
                     row: self.row,
                     col: self.col - 1,
                     literal: vec![t],
                 }),
-                t @ '-' => Token::MINUS(TokenDetails {
+                t @ '-' => Token::Minus(TokenDetails {
                     row: self.row,
                     col: self.col - 1,
                     literal: vec![t],
                 }),
-                t @ '*' => Token::STAR(TokenDetails {
+                t @ '*' => Token::Star(TokenDetails {
                     row: self.row,
                     col: self.col - 1,
                     literal: vec![t],
                 }),
-                t @ '%' => Token::PERCENTAGE(TokenDetails {
+                t @ '%' => Token::Percentage(TokenDetails {
                     row: self.row,
                     col: self.col - 1,
                     literal: vec![t],
@@ -147,16 +147,16 @@ impl Scanner {
                 }
                 '"' => {
                     self.read_char();
-                    let str: Vec<char> = read_string(self);
-                    Token::STRING(TokenDetails {
+                    let str: Vec<char> = read_String(self);
+                    Token::String(TokenDetails {
                         row: self.row,
                         col: self.col,
                         literal: str,
                     })
                 }
                 'A'..='Z' | 'a'..='z' => {
-                    let ident: Vec<char> = read_identifier(self);
-                    return Token::IDENTIFIER(TokenDetails {
+                    let ident: Vec<char> = read_Identifier(self);
+                    return Token::Identifier(TokenDetails {
                         row: self.row,
                         col: self.col - ident.len() - 1,
                         literal: ident,
@@ -164,14 +164,14 @@ impl Scanner {
                         // match again, so we return here already
                 }
                 '0'..='9' => {
-                    let num: Vec<char> = read_number(self);
-                    return Token::NUMBER(TokenDetails {
+                    let num: Vec<char> = read_Number(self);
+                    return Token::Number(TokenDetails {
                         row: self.row,
                         col: self.col - num.len() - 1,
                         literal: num,
                     }); // same here
                 }
-                t @ _ => Token::ILLEGAL(TokenDetails {
+                t @ _ => Token::Illegal(TokenDetails {
                     row: self.row,
                     col: self.col - 1,
                     literal: vec![t],
@@ -194,17 +194,17 @@ mod tests {
     fn test_assignment() {
         let input = "1:x".chars().collect();
         let expected = vec![
-            Token::NUMBER(TokenDetails {
+            Token::Number(TokenDetails {
                 row: 0,
                 col: 0,
                 literal: vec!['1'],
             }),
-            Token::COLON(TokenDetails {
+            Token::Colon(TokenDetails {
                 row: 0,
                 col: 1,
                 literal: vec![':'],
             }),
-            Token::IDENTIFIER(TokenDetails {
+            Token::Identifier(TokenDetails {
                 row: 0,
                 col: 2,
                 literal: vec!['x'],
@@ -220,12 +220,12 @@ mod tests {
     fn test_enum() {
         let input = "12!".chars().collect();
         let expected = vec![
-            Token::NUMBER(TokenDetails {
+            Token::Number(TokenDetails {
                 row: 0,
                 col: 0,
                 literal: vec!['1', '2'],
             }),
-            Token::EXCLAMATION(TokenDetails {
+            Token::Exclamation(TokenDetails {
                 row: 0,
                 col: 2,
                 literal: vec!['!'],
@@ -241,12 +241,12 @@ mod tests {
     fn test_location_of_token() {
         let input = "1!\n1:x\n".chars().collect();
         let expected = vec![
-            Token::NUMBER(TokenDetails {
+            Token::Number(TokenDetails {
                 row: 0,
                 col: 0,
                 literal: vec!['1'],
             }),
-            Token::EXCLAMATION(TokenDetails {
+            Token::Exclamation(TokenDetails {
                 row: 0,
                 col: 1,
                 literal: vec!['!'],
@@ -256,17 +256,17 @@ mod tests {
                 col: 2,
                 literal: vec!['\n'],
             }),
-            Token::NUMBER(TokenDetails {
+            Token::Number(TokenDetails {
                 row: 1,
                 col: 0,
                 literal: vec!['1'],
             }),
-            Token::COLON(TokenDetails {
+            Token::Colon(TokenDetails {
                 row: 1,
                 col: 1,
                 literal: vec![':'],
             }),
-            Token::IDENTIFIER(TokenDetails {
+            Token::Identifier(TokenDetails {
                 row: 1,
                 col: 2,
                 literal: vec!['x'],
@@ -287,57 +287,57 @@ mod tests {
     fn test_arithmetic_tokens() {
         let input = "12+3*2-2%2:x\n".chars().collect();
         let expected = vec![
-            Token::NUMBER(TokenDetails {
+            Token::Number(TokenDetails {
                 row: 0,
                 col: 0,
                 literal: vec!['1', '2'],
             }),
-            Token::PLUS(TokenDetails {
+            Token::Plus(TokenDetails {
                 row: 0,
                 col: 2,
                 literal: vec!['+'],
             }),
-            Token::NUMBER(TokenDetails {
+            Token::Number(TokenDetails {
                 row: 0,
                 col: 3,
                 literal: vec!['3'],
             }),
-            Token::STAR(TokenDetails {
+            Token::Star(TokenDetails {
                 row: 0,
                 col: 4,
                 literal: vec!['*'],
             }),
-            Token::NUMBER(TokenDetails {
+            Token::Number(TokenDetails {
                 row: 0,
                 col: 5,
                 literal: vec!['2'],
             }),
-            Token::MINUS(TokenDetails {
+            Token::Minus(TokenDetails {
                 row: 0,
                 col: 6,
                 literal: vec!['-'],
             }),
-            Token::NUMBER(TokenDetails {
+            Token::Number(TokenDetails {
                 row: 0,
                 col: 7,
                 literal: vec!['2'],
             }),
-            Token::PERCENTAGE(TokenDetails {
+            Token::Percentage(TokenDetails {
                 row: 0,
                 col: 8,
                 literal: vec!['%'],
             }),
-            Token::NUMBER(TokenDetails {
+            Token::Number(TokenDetails {
                 row: 0,
                 col: 9,
                 literal: vec!['2'],
             }),
-            Token::COLON(TokenDetails {
+            Token::Colon(TokenDetails {
                 row: 0,
                 col: 10,
                 literal: vec![':'],
             }),
-            Token::IDENTIFIER(TokenDetails {
+            Token::Identifier(TokenDetails {
                 row: 0,
                 col: 11,
                 literal: vec!['x'],
@@ -357,4 +357,6 @@ mod tests {
     fn test_multichar_tokens() {}
 
     fn test_whitespace_location() {}
+
+    fn test_Illegal_tokens() {}
 }
