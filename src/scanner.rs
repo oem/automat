@@ -2,7 +2,7 @@ use crate::token::{Token, TokenDetails};
 
 #[derive(Debug)]
 pub enum ScannerError {
-    UnknownTokenError,
+    IllegalTokenError,
 }
 
 impl std::fmt::Display for ScannerError {
@@ -21,7 +21,7 @@ fn is_digit(ch: char) -> bool {
     '0' <= ch && ch <= '9'
 }
 
-fn is_String_delimiter(ch: char) -> bool {
+fn is_string_delimiter(ch: char) -> bool {
     ch == '"'
 }
 
@@ -74,7 +74,7 @@ impl Scanner {
     }
 
     pub fn next_token(&mut self) -> Token {
-        let read_Identifier = |l: &mut Scanner| -> Vec<char> {
+        let read_identifier = |l: &mut Scanner| -> Vec<char> {
             let position = l.position;
             while l.position < l.input.len() && l.ch.is_some() && is_letter(l.ch.unwrap()) {
                 l.read_char();
@@ -82,7 +82,7 @@ impl Scanner {
             l.input[position..l.position].to_vec()
         };
 
-        let read_Number = |l: &mut Scanner| -> Vec<char> {
+        let read_number = |l: &mut Scanner| -> Vec<char> {
             let position = l.position;
             while l.position < l.input.len() && l.ch.is_some() && is_digit(l.ch.unwrap()) {
                 l.read_char();
@@ -90,11 +90,11 @@ impl Scanner {
             l.input[position..l.position].to_vec()
         };
 
-        let read_String = |l: &mut Scanner| -> Vec<char> {
+        let read_string = |l: &mut Scanner| -> Vec<char> {
             let position = l.position;
             while l.position < l.input.len()
                 && l.ch.is_some()
-                && !is_String_delimiter(l.ch.unwrap())
+                && !is_string_delimiter(l.ch.unwrap())
             {
                 l.read_char();
             }
@@ -147,7 +147,7 @@ impl Scanner {
                 }
                 '"' => {
                     self.read_char();
-                    let str: Vec<char> = read_String(self);
+                    let str: Vec<char> = read_string(self);
                     Token::String(TokenDetails {
                         row: self.row,
                         col: self.col,
@@ -155,7 +155,7 @@ impl Scanner {
                     })
                 }
                 'A'..='Z' | 'a'..='z' => {
-                    let ident: Vec<char> = read_Identifier(self);
+                    let ident: Vec<char> = read_identifier(self);
                     return Token::Identifier(TokenDetails {
                         row: self.row,
                         col: self.col - ident.len() - 1,
@@ -164,7 +164,7 @@ impl Scanner {
                         // match again, so we return here already
                 }
                 '0'..='9' => {
-                    let num: Vec<char> = read_Number(self);
+                    let num: Vec<char> = read_number(self);
                     return Token::Number(TokenDetails {
                         row: self.row,
                         col: self.col - num.len() - 1,
@@ -358,5 +358,12 @@ mod tests {
 
     fn test_whitespace_location() {}
 
-    fn test_Illegal_tokens() {}
+    #[test]
+    fn test_illegal_tokens() {
+        let input: Vec<char> = "⍺+2".chars().collect();
+        let mut l = Scanner::new(input);
+        let expected = Err(ScannerError::IllegalTokenError);
+        let actual = l.scan();
+        assert_eq!(actual, expected);
+    }
 }
