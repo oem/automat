@@ -1,8 +1,8 @@
 use crate::token::{Token, TokenDetails};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ScannerError {
-    IllegalTokenError,
+    IllegalTokenError(TokenDetails),
 }
 
 impl std::fmt::Display for ScannerError {
@@ -49,17 +49,20 @@ impl Scanner {
         s
     }
 
-    pub fn scan(&mut self) -> Vec<Token> {
+    pub fn scan(&mut self) -> Result<Vec<Token>, ScannerError> {
         let mut tokens = Vec::new();
         loop {
             let token = self.next_token();
-            if token == Token::EOF {
-                tokens.push(token);
-                break;
+            match token {
+                Token::EOF => {
+                    tokens.push(token);
+                    break;
+                }
+                Token::Illegal(d) => return Err(ScannerError::IllegalTokenError(d)),
+                _ => tokens.push(token),
             }
-            tokens.push(token);
         }
-        tokens
+        Ok(tokens)
     }
 
     pub fn read_char(&mut self) {
@@ -160,7 +163,7 @@ impl Scanner {
                         row: self.row,
                         col: self.col - ident.len() - 1,
                         literal: ident,
-                    }); // we don't want to call read_char after he
+                    }); // we don't want to call read_char after the
                         // match again, so we return here already
                 }
                 '0'..='9' => {
@@ -212,7 +215,7 @@ mod tests {
             Token::EOF,
         ];
         let mut l = Scanner::new(input);
-        let actual = l.scan();
+        let actual = l.scan().unwrap();
         assert_eq!(actual, expected);
     }
 
@@ -233,7 +236,7 @@ mod tests {
             Token::EOF,
         ];
         let mut l = Scanner::new(input);
-        let actual = l.scan();
+        let actual = l.scan().unwrap();
         assert_eq!(actual, expected);
     }
 
@@ -279,7 +282,7 @@ mod tests {
             Token::EOF,
         ];
         let mut l = Scanner::new(input);
-        let actual = l.scan();
+        let actual = l.scan().unwrap();
         assert_eq!(actual, expected);
     }
 
@@ -350,7 +353,7 @@ mod tests {
             Token::EOF,
         ];
         let mut l = Scanner::new(input);
-        let actual = l.scan();
+        let actual = l.scan().unwrap();
         assert_eq!(actual, expected);
     }
 
@@ -362,7 +365,11 @@ mod tests {
     fn test_illegal_tokens() {
         let input: Vec<char> = "⍺+2".chars().collect();
         let mut l = Scanner::new(input);
-        let expected = Err(ScannerError::IllegalTokenError);
+        let expected = Err(ScannerError::IllegalTokenError(TokenDetails {
+            row: 0,
+            col: 0,
+            literal: vec!['⍺'],
+        }));
         let actual = l.scan();
         assert_eq!(actual, expected);
     }
