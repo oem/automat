@@ -363,11 +363,11 @@ mod tests {
 
     #[test]
     fn test_illegal_tokens() {
-        let input: Vec<char> = "⍺+2".chars().collect();
+        let input: Vec<char> = "2+⍺*3".chars().collect();
         let mut l = Scanner::new(input);
         let expected = Err(ScannerError::IllegalTokenError(TokenDetails {
             row: 0,
-            col: 0,
+            col: 2,
             literal: vec!['⍺'],
         }));
         let actual = l.scan();
