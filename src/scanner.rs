@@ -76,6 +76,8 @@ impl Scanner {
         self.col = self.col + 1;
     }
 
+    // TODO: makes this into an iterator, so that we can easily collect the results, errors or tokens in the scan function
+    // Or maybe we want to have a line iterator, since we should be able to independently scan each line
     pub fn next_token(&mut self) -> Token {
         let read_identifier = |l: &mut Scanner| -> Vec<char> {
             let position = l.position;
