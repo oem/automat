@@ -359,13 +359,47 @@ mod tests {
         assert_eq!(actual, expected);
     }
 
-    fn test_multichar_tokens() {}
+    #[test]
+    fn test_multichar_tokens() {
+        let input = "c%d:pi".chars().collect();
+        let mut l = Scanner::new(input);
+        let expected = vec![
+            Token::Identifier(TokenDetails {
+                row: 0,
+                col: 0,
+                literal: vec!['c'],
+            }),
+            Token::Percentage(TokenDetails {
+                row: 0,
+                col: 1,
+                literal: vec!['%'],
+            }),
+            Token::Identifier(TokenDetails {
+                row: 0,
+                col: 2,
+                literal: vec!['d'],
+            }),
+            Token::Colon(TokenDetails {
+                row: 0,
+                col: 3,
+                literal: vec![':'],
+            }),
+            Token::Identifier(TokenDetails {
+                row: 0,
+                col: 4,
+                literal: vec!['p', 'i'],
+            }),
+            Token::EOF,
+        ];
+        let actual = l.scan().unwrap();
+        assert_eq!(actual, expected);
+    }
 
     fn test_whitespace_location() {}
 
     #[test]
     fn test_illegal_tokens() {
-        let input: Vec<char> = "2+⍺*3".chars().collect();
+        let input = "2+⍺*3".chars().collect();
         let mut l = Scanner::new(input);
         let expected = Err(ScannerError::IllegalTokenError(TokenDetails {
             row: 0,
