@@ -395,7 +395,40 @@ mod tests {
         assert_eq!(actual, expected);
     }
 
-    fn test_whitespace_location() {}
+    #[test]
+    fn test_ignored_whitespace() {
+        let input = "2 + 3  %4".chars().collect();
+        let mut l = Scanner::new(input);
+        let expected = vec![
+            Token::Number(TokenDetails {
+                row: 0,
+                col: 0,
+                literal: vec!['2'],
+            }),
+            Token::Plus(TokenDetails {
+                row: 0,
+                col: 2,
+                literal: vec!['+'],
+            }),
+            Token::Number(TokenDetails {
+                row: 0,
+                col: 4,
+                literal: vec!['3'],
+            }),
+            Token::Percentage(TokenDetails {
+                row: 0,
+                col: 7,
+                literal: vec!['%'],
+            }),
+            Token::Number(TokenDetails {
+                row: 0,
+                col: 8,
+                literal: vec!['4'],
+            }),
+        ];
+        let actual = l.scan().unwrap();
+        assert_eq!(actual, expected);
+    }
 
     #[test]
     fn test_illegal_tokens() {
