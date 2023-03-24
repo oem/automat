@@ -59,6 +59,7 @@ impl Scanner {
                     break;
                 }
                 Token::Illegal(d) => return Err(ScannerError::IllegalTokenError(d)),
+                Token::Ignored => continue,
                 _ => tokens.push(token),
             }
         }
@@ -176,6 +177,7 @@ impl Scanner {
                         literal: num,
                     }); // same here
                 }
+                ' ' | '\t' => Token::Ignored,
                 t @ _ => Token::Illegal(TokenDetails {
                     row: self.row,
                     col: self.col - 1,
@@ -425,6 +427,7 @@ mod tests {
                 col: 8,
                 literal: vec!['4'],
             }),
+            Token::EOF,
         ];
         let actual = l.scan().unwrap();
         assert_eq!(actual, expected);

@@ -2,6 +2,7 @@
 pub enum Token {
     EOL(TokenDetails),
     EOF,
+    Ignored,
     Exclamation(TokenDetails),
     Colon(TokenDetails),
     Plus(TokenDetails),
