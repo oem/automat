@@ -14,7 +14,7 @@ pub fn run() {
             .expect("Unable to read from stdin");
         let input = &buffer.trim().chars().collect();
         let tokenizer = Tokenizer::new(input);
-        let tokens: Vec<Token> = tokenizer.collect();
+        let tokens: Vec<_> = tokenizer.collect();
         println!("{:?}", tokens);
 
         if buffer.len() == 0 {
