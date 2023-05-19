@@ -37,6 +37,15 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
+    pub fn errors(&self) -> Vec<TokenizerError> {
+        self.collect::<Vec<_>>()
+            .into_iter()
+            .map(|t| t.err())
+            .filter(|t| t.is_some())
+            .map(|t| t.unwrap())
+            .collect()
+    }
+
     fn read_number(&mut self) {
         while self.index < self.input.len() {
             match self.input[self.index] {
@@ -83,7 +92,6 @@ impl<'a> Iterator for Tokenizer<'a> {
         if self.index >= self.input.len() {
             return None;
         }
-        println!("{}", self.input[self.index]);
 
         match self.input[self.index] {
             ':' => {
@@ -269,34 +277,6 @@ mod tests {
     }
 
     #[test]
-    fn test_errors_in_collection() {
-        let input = &"⍵-12:⍺\"1".chars().collect();
-        let t = Tokenizer::new(input);
-        let expected = vec![
-            Err(TokenizerError::UnknownToken),
-            Ok(Token::Minus(Loc {
-                start: 1,
-                end: 1,
-                literal: &t.input[1..2],
-            })),
-            Ok(Token::Number(Loc {
-                start: 2,
-                end: 3,
-                literal: &t.input[2..4],
-            })),
-            Ok(Token::Colon(Loc {
-                start: 4,
-                end: 4,
-                literal: &t.input[4..5],
-            })),
-            Err(TokenizerError::UnknownToken),
-            Err(TokenizerError::UnterminatedString),
-        ];
-        let actual: Vec<_> = t.collect();
-        assert_eq!(actual, expected);
-    }
-
-    #[test]
     fn test_arithmetic_tokens() {
         let input = &"1+2*4-2%2".chars().collect();
         let t = Tokenizer::new(input);
@@ -350,4 +330,34 @@ mod tests {
         let actual: Vec<_> = t.collect();
         assert_eq!(actual, expected);
     }
+}
+
+#[test]
+fn test_errors_in_collection() {
+    let input = &"⍵-12:⍺\"1".chars().collect();
+    let t = Tokenizer::new(input);
+    let expected = vec![
+        Err(TokenizerError::UnknownToken),
+        Ok(Token::Minus(Loc {
+            start: 1,
+            end: 1,
+            literal: &t.input[1..2],
+        })),
+        Ok(Token::Number(Loc {
+            start: 2,
+            end: 3,
+            literal: &t.input[2..4],
+        })),
+        Ok(Token::Colon(Loc {
+            start: 4,
+            end: 4,
+            literal: &t.input[4..5],
+        })),
+        Err(TokenizerError::UnknownToken),
+        Err(TokenizerError::UnterminatedString),
+    ];
+    let actual: Vec<_> = t.collect();
+    let errors = t.errors();
+    assert_eq!(3, errors.len());
+    assert_eq!(actual, expected);
 }
