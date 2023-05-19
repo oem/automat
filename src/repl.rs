@@ -1,6 +1,5 @@
+use crate::tokenizer::{Token, Tokenizer};
 use std::io::{stdin, stdout, Write};
-
-use crate::scanner::Scanner;
 
 pub fn run() {
     let mut stdout = stdout();
@@ -13,9 +12,10 @@ pub fn run() {
         stdin
             .read_line(&mut buffer)
             .expect("Unable to read from stdin");
-        let mut scanner = Scanner::new(buffer.trim().chars().collect());
-        let scanned = scanner.scan();
-        println!("{:?}", scanned);
+        let input = &buffer.trim().chars().collect();
+        let tokenizer = Tokenizer::new(input);
+        let tokens: Vec<Token> = tokenizer.collect();
+        println!("{:?}", tokens);
 
         if buffer.len() == 0 {
             return;

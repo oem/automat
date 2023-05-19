@@ -1,6 +1,5 @@
 mod repl;
-mod scanner;
-mod token;
+mod tokenizer;
 
 use clap::Parser;
 
