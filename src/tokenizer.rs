@@ -31,18 +31,13 @@ pub enum TokenizerError {
 
 impl<'a> Tokenizer<'a> {
     pub fn new(input: &'a Vec<char>) -> Self {
-        Self {
-            input: &input,
-            index: 0,
-        }
+        Self { input, index: 0 }
     }
 
     pub fn errors(&self) -> Vec<TokenizerError> {
         self.collect::<Vec<_>>()
             .into_iter()
-            .map(|t| t.err())
-            .filter(|t| t.is_some())
-            .map(|t| t.unwrap())
+            .filter_map(|t| t.err())
             .collect()
     }
 
@@ -81,7 +76,7 @@ impl<'a> Tokenizer<'a> {
                 }
             }
         }
-        return Err(TokenizerError::UnterminatedString);
+        Err(TokenizerError::UnterminatedString)
     }
 }
 

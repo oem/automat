@@ -14,6 +14,7 @@ fn main() -> Result<(), anyhow::Error> {
     if let Some(_filename) = args.filename {
         Ok(())
     } else {
-        Ok(repl::run())
+        repl::run();
+        Ok(())
     }
 }

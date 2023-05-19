@@ -17,7 +17,7 @@ pub fn run() {
         let tokens: Vec<_> = tokenizer.collect();
         println!("{:?}", tokens);
 
-        if buffer.len() == 0 {
+        if buffer.is_empty() {
             return;
         }
     }
