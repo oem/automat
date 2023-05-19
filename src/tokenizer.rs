@@ -14,7 +14,6 @@ pub enum Token<'a> {
     Minus(Loc<'a>),
     Star(Loc<'a>),
     Percentage(Loc<'a>),
-    Illegal(Loc<'a>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -26,7 +25,7 @@ pub struct Loc<'a> {
 
 #[derive(Debug, PartialEq)]
 pub enum TokenizerError {
-    UnknowToken,
+    UnknownToken,
     UnterminatedString,
 }
 
@@ -60,21 +59,20 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    // TODO: This should actually return an error since we might be dealing with an unbalanced
-    // string (no closing character)
-    fn read_string(&mut self) {
+    fn read_string(&mut self) -> Result<(), TokenizerError> {
         self.index += 1;
         while self.index < self.input.len() {
             match self.input[self.index] {
                 '"' => {
                     self.index += 1;
-                    return;
+                    return Ok(());
                 }
                 _ => {
                     self.index += 1;
                 }
             }
         }
+        return Err(TokenizerError::UnterminatedString);
     }
 }
 
@@ -85,6 +83,7 @@ impl<'a> Iterator for Tokenizer<'a> {
         if self.index >= self.input.len() {
             return None;
         }
+        println!("{}", self.input[self.index]);
 
         match self.input[self.index] {
             ':' => {
@@ -148,20 +147,25 @@ impl<'a> Iterator for Tokenizer<'a> {
             }
             '"' => {
                 let start = self.index;
-                self.read_string();
+                if let Err(e) = self.read_string() {
+                    return Some(Err(e));
+                };
                 Some(Ok(Token::String(Loc {
                     start,
                     end: self.index - 1,
                     literal: &self.input[start..self.index],
                 })))
             }
-            _ => None,
+            _ => {
+                self.index += 1;
+                Some(Err(TokenizerError::UnknownToken))
+            }
         }
     }
 }
 
 #[cfg(test)]
-mod tests2 {
+mod tests {
     use super::*;
 
     #[test]
@@ -259,6 +263,34 @@ mod tests2 {
                 end: 14,
                 literal: &t.input[14..15],
             })),
+        ];
+        let actual: Vec<_> = t.collect();
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_errors_in_collection() {
+        let input = &"⍵-12:⍺\"1".chars().collect();
+        let t = Tokenizer::new(input);
+        let expected = vec![
+            Err(TokenizerError::UnknownToken),
+            Ok(Token::Minus(Loc {
+                start: 1,
+                end: 1,
+                literal: &t.input[1..2],
+            })),
+            Ok(Token::Number(Loc {
+                start: 2,
+                end: 3,
+                literal: &t.input[2..4],
+            })),
+            Ok(Token::Colon(Loc {
+                start: 4,
+                end: 4,
+                literal: &t.input[4..5],
+            })),
+            Err(TokenizerError::UnknownToken),
+            Err(TokenizerError::UnterminatedString),
         ];
         let actual: Vec<_> = t.collect();
         assert_eq!(actual, expected);

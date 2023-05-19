@@ -1,4 +1,4 @@
-use crate::tokenizer::{Token, Tokenizer};
+use crate::tokenizer::Tokenizer;
 use std::io::{stdin, stdout, Write};
 
 pub fn run() {
