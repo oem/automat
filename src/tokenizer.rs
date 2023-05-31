@@ -14,6 +14,7 @@ pub enum Token<'a> {
     Minus(Loc<'a>),
     Star(Loc<'a>),
     Percentage(Loc<'a>),
+    EOF,
 }
 
 #[derive(Debug, PartialEq)]
@@ -84,7 +85,11 @@ impl<'a> Iterator for Tokenizer<'a> {
     type Item = Result<Token<'a>, TokenizerError>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.index >= self.input.len() {
+        if self.index == self.input.len() {
+            self.index += 1;
+            return Some(Ok(Token::EOF));
+        }
+        if self.index > self.input.len() {
             return None;
         }
 
@@ -192,6 +197,7 @@ mod tests {
                 end: 2,
                 literal: &t.input[2..3],
             })),
+            Ok(Token::EOF),
         ];
         assert_eq!(actual, expected);
     }
@@ -217,6 +223,7 @@ mod tests {
                 end: 9,
                 literal: &t.input[2..10],
             })),
+            Ok(Token::EOF),
         ];
         assert_eq!(actual, expected);
     }
@@ -242,6 +249,7 @@ mod tests {
                 end: 5,
                 literal: &t.input[3..6],
             })),
+            Ok(Token::EOF),
         ];
         assert_eq!(actual, expected);
     }
@@ -266,6 +274,7 @@ mod tests {
                 end: 14,
                 literal: &t.input[14..15],
             })),
+            Ok(Token::EOF),
         ];
         let actual: Vec<_> = t.collect();
         assert_eq!(actual, expected);
@@ -321,6 +330,7 @@ mod tests {
                 end: 8,
                 literal: &t.input[8..9],
             })),
+            Ok(Token::EOF),
         ];
         let actual: Vec<_> = t.collect();
         assert_eq!(actual, expected);
@@ -350,6 +360,7 @@ fn test_errors_in_collection() {
         })),
         Err(TokenizerError::UnknownToken),
         Err(TokenizerError::UnterminatedString),
+        Ok(Token::EOF),
     ];
     let actual: Vec<_> = t.collect();
     let errors = t.errors();
