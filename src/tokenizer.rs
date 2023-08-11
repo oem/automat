@@ -154,14 +154,14 @@ impl<'a> Iterator for Tokenizer<'a> {
                 })))
             }
             '"' => {
-                let start = self.index;
+                let start = self.index + 1;
                 if let Err(e) = self.read_string() {
                     return Some(Err(e));
                 };
                 Some(Ok(Token::String(Loc {
                     start,
                     end: self.index - 1,
-                    literal: &self.input[start..self.index],
+                    literal: &self.input[start..self.index - 1],
                 })))
             }
             _ => {
