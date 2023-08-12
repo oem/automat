@@ -14,6 +14,7 @@ pub enum Token<'a> {
     Minus(Loc<'a>),
     Star(Loc<'a>),
     Percentage(Loc<'a>),
+    Exclamation(Loc<'a>),
     EOF,
 }
 
@@ -134,6 +135,14 @@ impl<'a> Iterator for Tokenizer<'a> {
                     literal: &self.input[self.index - 1..self.index],
                 })))
             }
+            '!' => {
+                self.index += 1;
+                Some(Ok(Token::Exclamation(Loc {
+                    start: self.index - 1,
+                    end: self.index - 1,
+                    literal: &self.input[self.index - 1..self.index],
+                })))
+            }
             '0'..='9' => {
                 let start = self.index;
                 self.read_number();
@@ -193,6 +202,27 @@ mod tests {
                 literal: &t.input[1..2],
             })),
             Ok(Token::Identifier(Loc {
+                start: 2,
+                end: 2,
+                literal: &t.input[2..3],
+            })),
+            Ok(Token::EOF),
+        ];
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_various_tokens() {
+        let input = &"10!".chars().collect();
+        let t = Tokenizer::new(input);
+        let actual: Vec<_> = t.collect();
+        let expected = vec![
+            Ok(Token::Number(Loc {
+                start: 0,
+                end: 1,
+                literal: &t.input[0..2],
+            })),
+            Ok(Token::Exclamation(Loc {
                 start: 2,
                 end: 2,
                 literal: &t.input[2..3],
