@@ -47,6 +47,8 @@ If you for example have a csv file called worldcitiespop.csv in your local direc
 
 The benchmarks have been created with [hyperfine](https://github.com/sharkdp/hyperfine).
 
+Now of course keep in mind that these benchmark are not all that useful, especially since they have been measured using time. Which is notoriously coupled to pretty much everything on the machine that is running those benchmarks. It really is just to show a very rough ballpark measurement.
+
 ### v.0.0.5
 
 | Command | Mean [s] | Min [s] | Max [s] | Relative |
